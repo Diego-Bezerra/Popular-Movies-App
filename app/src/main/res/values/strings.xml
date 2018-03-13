@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Popular Movies App</string>
+    <string name="popular">Popular</string>
+    <string name="top_rated">Top rated</string>
+    <string name="no_internet">No internet connection :(</string>
+    <string name="no_results">No movies to show :(</string>
+    <string name="movie_thumb_description">Movie thumb</string>
+
+    <!--DetailsActivity-->
+    <string name="format_title">Original title: %s</string>
+    <string name="format_rating">Rating: %s</string>
+    <string name="format_release_date">Release date: %s</string>
+</resources>
