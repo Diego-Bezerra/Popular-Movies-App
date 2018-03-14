@@ -20,7 +20,7 @@ class MovieApiService {
     private static final String POPULAR_PATH = "popular";
     private static final String TOP_RATED_PATH = "top_rated";
     private static final String API_KEY_QUERY = "api_key";
-    private static final String API_KEY = "d0024c479bf9516f9b2cf44744d33d03";
+    private static final String API_KEY = BuildConfig.API_KEY;
     private static final String RESULTS_PARAM = "results";
 
     private static URL getMoviesApiURL(String path) {
