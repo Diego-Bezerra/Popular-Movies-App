@@ -3,7 +3,6 @@ package br.com.popularmoviesapp.popularmovies;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -16,32 +15,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements MovieListAdapter.MovieItemClickListener
-        , AdapterView.OnItemSelectedListener {
+        , AdapterView.OnItemSelectedListener, MyAsyncTask.AsyncTaskListener<MovieSortEnum, ArrayList<MovieResponse>> {
 
     private RecyclerView mMovieList;
     private ProgressBar mProgress;
     private Spinner mMovieSort;
     private TextView mNoResults;
-
-    private enum MovieSort {
-        POPULAR(R.string.popular),
-        TOP_RATED(R.string.top_rated);
-
-        @SuppressWarnings("CanBeFinal")
-        private int strValue;
-
-        MovieSort(int strValue) {
-            this.strValue = strValue;
-        }
-
-        public int getStrValue() {
-            return strValue;
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +40,15 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
 
     private void setupMovieSortSpinner() {
 
+        ArrayList<String> sortTypes = new ArrayList<>();
+        for (MovieSortEnum sortEnum : MovieSortEnum.values()) {
+            sortTypes.add(sortEnum.getStrValue(this));
+        }
+
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this
                 , R.layout.movie_sort_spinner_item
                 , R.id.tv_text
-                , new String[]{
-                getString(MovieSort.POPULAR.getStrValue())
-                , getString(MovieSort.TOP_RATED.getStrValue())});
+                , sortTypes);
 
         mMovieSort.getBackground().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
         mMovieSort.setAdapter(adapter);
@@ -79,8 +64,8 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
                     , Toast.LENGTH_LONG).show();
         }
 
-        MovieSort movieSort = MovieSort.values()[mMovieSort.getSelectedItemPosition()];
-        new MoviesAsyncTask(this).execute(movieSort);
+        MovieSortEnum movieSort = MovieSortEnum.values()[mMovieSort.getSelectedItemPosition()];
+        new MyAsyncTask<MovieSortEnum, Void, ArrayList<MovieResponse>>(this).execute(movieSort);
     }
 
     private void showNoResults(boolean show) {
@@ -90,66 +75,6 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         } else {
             mMovieList.setVisibility(View.INVISIBLE);
             mNoResults.setVisibility(View.VISIBLE);
-        }
-    }
-
-    public static class MoviesAsyncTask extends AsyncTask<MovieSort, Void, ArrayList<MovieResponse>> {
-
-        @SuppressWarnings("CanBeFinal")
-        private WeakReference<MainActivity> activityReference;
-
-        public MoviesAsyncTask(MainActivity context) {
-            activityReference = new WeakReference<>(context);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            MainActivity activity = activityReference.get();
-
-            activity.mNoResults.setVisibility(View.GONE);
-            activity.mProgress.setVisibility(View.VISIBLE);
-            activity.mMovieList.setAdapter(null);
-        }
-
-        @Override
-        protected ArrayList<MovieResponse> doInBackground(MovieSort... movieSorts) {
-            MovieSort movieSort = movieSorts[0];
-            switch (movieSort) {
-                case POPULAR:
-                    return MovieApiService.getPopularMovies();
-                case TOP_RATED:
-                    return MovieApiService.getTopRatedMovies();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<MovieResponse> movies) {
-
-            MainActivity activity = activityReference.get();
-
-            activity.mProgress.setVisibility(View.INVISIBLE);
-
-            if (movies.size() > 0) {
-
-                activity.showNoResults(true);
-
-                int spanCount = 2;
-                if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    spanCount = 3;
-                }
-
-                GridLayoutManager gridLayoutManager = new GridLayoutManager(activity, spanCount);
-                activity.mMovieList.setHasFixedSize(true);
-                activity.mMovieList.setLayoutManager(gridLayoutManager);
-                activity.mMovieList.setAdapter(new MovieListAdapter(movies, activity));
-            } else {
-                activity.showNoResults(false);
-            }
-
-            super.onPostExecute(movies);
         }
     }
 
@@ -163,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-        MovieSort movieSort = MovieSort.values()[position];
+        MovieSortEnum movieSort = MovieSortEnum.values()[position];
         switch (movieSort) {
             case POPULAR:
                 executeMovieAsyncTask();
@@ -177,5 +102,47 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+    @Override
+    public void onPreExecute() {
+        mNoResults.setVisibility(View.GONE);
+        mProgress.setVisibility(View.VISIBLE);
+        mMovieList.setAdapter(null);
+    }
+
+    @Override
+    public ArrayList<MovieResponse> doInBackground(MovieSortEnum[] params) {
+        MovieSortEnum sortEnum = params[0];
+        switch (sortEnum) {
+            case POPULAR:
+                return MovieApiService.getPopularMovies();
+            case TOP_RATED:
+                return MovieApiService.getTopRatedMovies();
+        }
+        return null;
+    }
+
+    @Override
+    public void onPostExecute(ArrayList<MovieResponse> parameter) {
+
+        mProgress.setVisibility(View.INVISIBLE);
+
+        if (parameter.size() > 0) {
+
+            showNoResults(true);
+
+            int spanCount = 2;
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                spanCount = 3;
+            }
+
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(this, spanCount);
+            mMovieList.setHasFixedSize(true);
+            mMovieList.setLayoutManager(gridLayoutManager);
+            mMovieList.setAdapter(new MovieListAdapter(parameter, this));
+        } else {
+            showNoResults(false);
+        }
     }
 }
