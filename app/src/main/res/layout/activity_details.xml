@@ -11,31 +11,29 @@
 
         <ImageView
             android:id="@+id/img_movie_thumb"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_width="200dp"
+            android:layout_height="280dp"
+            android:layout_gravity="center_horizontal"
             android:layout_marginBottom="16dp"
-            android:scaleType="fitCenter"
+            android:scaleType="centerCrop"
             android:contentDescription="@string/movie_thumb_description" />
 
         <TextView
             android:id="@+id/tv_original_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
             android:textSize="15sp" />
 
         <TextView
             android:id="@+id/tv_rating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
             android:textSize="15sp" />
 
         <TextView
             android:id="@+id/tv_release_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
             android:textSize="15sp" />
 
         <TextView
@@ -43,7 +41,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:textColor="@color/white"
             android:textSize="15sp" />
 
     </LinearLayout>

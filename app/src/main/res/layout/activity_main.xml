@@ -3,27 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:context="br.com.popularmoviesapp.popularmovies.MainActivity">
+    android:padding="0dp"
+    tools:context="br.com.popularmoviesapp.popularmovies.gui.MainActivity">
 
-    <LinearLayout
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rc_movie_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <Spinner
-            android:id="@+id/sp_movie_sort"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:popupBackground="@color/colorPrimaryDark"
-            android:layout_gravity="end" />
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rc_movie_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
+        android:layout_height="wrap_content" />
 
     <ProgressBar
         android:id="@+id/pg_progress"
@@ -39,7 +25,6 @@
         android:layout_gravity="center"
         android:textStyle="bold"
         android:textSize="15sp"
-        android:textColor="@color/white"
         android:text="@string/no_results"
         android:visibility="gone"/>
 

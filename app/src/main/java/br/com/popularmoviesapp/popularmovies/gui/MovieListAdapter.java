@@ -1,4 +1,4 @@
-package br.com.popularmoviesapp.popularmovies;
+package br.com.popularmoviesapp.popularmovies.gui;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -6,11 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+
+import br.com.popularmoviesapp.popularmovies.R;
+import br.com.popularmoviesapp.popularmovies.network.MovieResponse;
 
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.MovieListViewHolder> {
 
@@ -23,7 +25,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
         void onMovieClick(MovieResponse movie);
     }
 
-    public MovieListAdapter(ArrayList<MovieResponse> movies, MovieItemClickListener movieItemClickListener) {
+    MovieListAdapter(ArrayList<MovieResponse> movies, MovieItemClickListener movieItemClickListener) {
         this.mMovies = movies;
         this.mMovieItemClickListener = movieItemClickListener;
     }
@@ -50,14 +52,11 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
     public class MovieListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         @SuppressWarnings("CanBeFinal")
-        public ImageView movieThumb;
-        @SuppressWarnings("CanBeFinal")
-        public TextView movieTitle;
+        ImageView movieThumb;
 
-        public MovieListViewHolder(View itemView) {
+        MovieListViewHolder(View itemView) {
             super(itemView);
             movieThumb = itemView.findViewById(R.id.iv_movie_thumb);
-            movieTitle = itemView.findViewById(R.id.tv_movie_title);
             itemView.setOnClickListener(this);
         }
 
@@ -67,9 +66,8 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
             mMovieItemClickListener.onMovieClick(movie);
         }
 
-        public void bind(MovieResponse movie) {
+        void bind(MovieResponse movie) {
             Picasso.get().load(movie.posterPath).into(movieThumb);
-            movieTitle.setText(movie.originalTitle);
         }
     }
 }

@@ -1,8 +1,10 @@
-package br.com.popularmoviesapp.popularmovies;
+package br.com.popularmoviesapp.popularmovies.network;
 
 import android.os.AsyncTask;
 
-class MyAsyncTask<T, Z, J> extends AsyncTask<T, Z, J> {
+import br.com.popularmoviesapp.popularmovies.util.LogUtil;
+
+public class MyAsyncTask<T, Z, J> extends AsyncTask<T, Z, J> {
 
     private final AsyncTaskListener<T, J> mAsyncTaskListener;
 
@@ -21,15 +23,18 @@ class MyAsyncTask<T, Z, J> extends AsyncTask<T, Z, J> {
     @Override
     protected void onPreExecute() {
         mAsyncTaskListener.onPreExecute();
+        LogUtil.logInfo("onPreExecute");
     }
 
     @Override
     protected J doInBackground(T[] ts) {
+        LogUtil.logInfo("doInBackground");
         return mAsyncTaskListener.doInBackground(ts);
     }
 
     @Override
     protected void onPostExecute(J j) {
+        LogUtil.logInfo("onPostExecute");
         mAsyncTaskListener.onPostExecute(j);
     }
 }

@@ -1,4 +1,4 @@
-package br.com.popularmoviesapp.popularmovies;
+package br.com.popularmoviesapp.popularmovies.network;
 
 import android.net.Uri;
 
@@ -11,14 +11,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
-class MovieApiService {
+import br.com.popularmoviesapp.popularmovies.BuildConfig;
+
+public class MovieApiService {
 
     private static final String BASE_URL = "http://api.themoviedb.org/3";
     private static final String BASE_IMAGE_URL = "http://image.tmdb.org/t/p/";
     private static final String IMAGE_SIZE_185_PATH = "w185";
     private static final String MOVIE_PATH = "movie";
     private static final String POPULAR_PATH = "popular";
-    private static final String TOP_RATED_PATH = "top_rated";sdfsd
+    private static final String TOP_RATED_PATH = "top_rated";
     private static final String API_KEY_QUERY = "api_key";
     private static final String API_KEY = BuildConfig.API_KEY;
     private static final String RESULTS_PARAM = "results";

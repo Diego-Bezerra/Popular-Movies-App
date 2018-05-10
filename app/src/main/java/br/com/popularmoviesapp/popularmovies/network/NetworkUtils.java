@@ -1,4 +1,4 @@
-package br.com.popularmoviesapp.popularmovies;
+package br.com.popularmoviesapp.popularmovies.network;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -9,7 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
 
-class NetworkUtils {
+public class NetworkUtils {
 
     public static String getResponseFromHttpUrl(URL url) throws IOException {
 

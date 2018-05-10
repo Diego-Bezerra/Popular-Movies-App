@@ -1,4 +1,4 @@
-package br.com.popularmoviesapp.popularmovies;
+package br.com.popularmoviesapp.popularmovies.network;
 
 import android.os.Parcel;
 import android.os.Parcelable;

@@ -1,4 +1,4 @@
-package br.com.popularmoviesapp.popularmovies;
+package br.com.popularmoviesapp.popularmovies.gui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,6 +11,9 @@ import com.squareup.picasso.Picasso;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+
+import br.com.popularmoviesapp.popularmovies.network.MovieResponse;
+import br.com.popularmoviesapp.popularmovies.R;
 
 public class DetailsActivity extends AppCompatActivity {
 

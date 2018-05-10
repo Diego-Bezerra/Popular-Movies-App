@@ -1,10 +1,14 @@
-package br.com.popularmoviesapp.popularmovies;
+package br.com.popularmoviesapp.popularmovies.gui;
 
 import android.content.Context;
 
+import br.com.popularmoviesapp.popularmovies.R;
+
 public enum MovieSortEnum {
+
     POPULAR(R.string.popular),
-    TOP_RATED(R.string.top_rated);
+    TOP_RATED(R.string.top_rated),
+    FAVORITE(R.string.favorites);
 
     @SuppressWarnings("CanBeFinal")
     private int strValue;
