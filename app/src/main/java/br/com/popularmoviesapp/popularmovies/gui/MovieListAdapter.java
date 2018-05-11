@@ -1,5 +1,8 @@
 package br.com.popularmoviesapp.popularmovies.gui;
 
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -7,27 +10,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Picasso;
-
-import java.util.ArrayList;
-
 import br.com.popularmoviesapp.popularmovies.R;
-import br.com.popularmoviesapp.popularmovies.network.MovieResponse;
 
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.MovieListViewHolder> {
 
     @SuppressWarnings("CanBeFinal")
-    private ArrayList<MovieResponse> mMovies;
+    private Cursor mMoviesCursor;
     @SuppressWarnings("CanBeFinal")
     private MovieItemClickListener mMovieItemClickListener;
 
     public interface MovieItemClickListener {
-        void onMovieClick(MovieResponse movie);
+        void onMovieClick(int movieId);
     }
 
-    MovieListAdapter(ArrayList<MovieResponse> movies, MovieItemClickListener movieItemClickListener) {
-        this.mMovies = movies;
+    MovieListAdapter(Cursor movies, MovieItemClickListener movieItemClickListener) {
+        this.mMoviesCursor = movies;
         this.mMovieItemClickListener = movieItemClickListener;
+    }
+
+    public void setmMoviesCursor(Cursor mMoviesCursor) {
+        this.mMoviesCursor = mMoviesCursor;
     }
 
     @NonNull
@@ -40,13 +42,13 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
     @Override
     public void onBindViewHolder(@NonNull MovieListViewHolder holder, int position) {
-        MovieResponse movie = mMovies.get(position);
-        holder.bind(movie);
+        mMoviesCursor.move(position);
+        holder.bind(mMoviesCursor);
     }
 
     @Override
     public int getItemCount() {
-        return mMovies.size();
+        return mMoviesCursor.getCount();
     }
 
     public class MovieListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -62,12 +64,14 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
         @Override
         public void onClick(View v) {
-            MovieResponse movie = mMovies.get(getAdapterPosition());
-            mMovieItemClickListener.onMovieClick(movie);
+            int movieId = mMoviesCursor.getInt(MainActivity.INDEX_MOVIE_ID);
+            mMovieItemClickListener.onMovieClick(movieId);
         }
 
-        void bind(MovieResponse movie) {
-            Picasso.get().load(movie.posterPath).into(movieThumb);
+        void bind(Cursor cursor) {
+            byte[] img = cursor.getBlob(MainActivity.INDEX_MOVIE_POSTER);
+            Bitmap bm = BitmapFactory.decodeByteArray(img, 0 ,img.length);
+            movieThumb.setImageBitmap(bm);
         }
     }
 }

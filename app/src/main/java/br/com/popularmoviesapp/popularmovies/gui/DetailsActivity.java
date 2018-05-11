@@ -17,7 +17,7 @@ import br.com.popularmoviesapp.popularmovies.R;
 
 public class DetailsActivity extends AppCompatActivity {
 
-    public static final String EXTRA_MOVIE = "android.intent.extra.EXTRA_MOVIE";
+    public static final String EXTRA_MOVIE_ID = "android.intent.extra.EXTRA_MOVIE_ID";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -30,14 +30,16 @@ public class DetailsActivity extends AppCompatActivity {
         TextView mRating = findViewById(R.id.tv_rating);
         TextView mReleaseDate = findViewById(R.id.tv_release_date);
 
-        if (getIntent().hasExtra(EXTRA_MOVIE)) {
-            MovieResponse movie = getIntent().getParcelableExtra(EXTRA_MOVIE);
-            Picasso.get().load(movie.posterPath).into(mMovieThumb);
-            mOriginalTitle.setText(formattedText(R.string.format_title, movie.originalTitle));
-            mSynopsis.setText(movie.overview);
-            mRating.setText(String.valueOf(formattedText(R.string.format_rating, String.valueOf(movie.voteAverage))));
-            DateFormat df = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-            mReleaseDate.setText(formattedText(R.string.format_release_date, df.format(movie.releaseDate)));
+        if (getIntent().hasExtra(EXTRA_MOVIE_ID)) {
+            int movieId = getIntent().getIntExtra(EXTRA_MOVIE_ID, 0);
+            if (movieId > 0) {
+                Picasso.get().load(movie.posterPath).into(mMovieThumb);
+                mOriginalTitle.setText(movie.originalTitle);
+                mSynopsis.setText(movie.overview);
+                mRating.setText(String.valueOf(String.valueOf(movie.voteAverage)));
+                DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy", Locale.US);
+                mReleaseDate.setText(df.format(movie.releaseDate));
+            }
         }
     }
 
