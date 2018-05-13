@@ -3,6 +3,7 @@ package br.com.popularmoviesapp.popularmovies.gui;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,7 +11,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
 import br.com.popularmoviesapp.popularmovies.R;
+import br.com.popularmoviesapp.popularmovies.api.MovieService;
 
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.MovieListViewHolder> {
 
@@ -70,8 +75,38 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
         void bind(Cursor cursor) {
             byte[] img = cursor.getBlob(MainActivity.INDEX_MOVIE_POSTER);
-            Bitmap bm = BitmapFactory.decodeByteArray(img, 0 ,img.length);
-            movieThumb.setImageBitmap(bm);
+            if (img == null) {
+                String urlEnd = cursor.getString(MainActivity.INDEX_MOVIE_POSTER_URL);
+                String posterUrl = MovieService.getImageThumbPath(urlEnd);
+                Picasso.get().load(posterUrl).into(new PosterTarget(movieThumb));
+            } else {
+                Bitmap bm = BitmapFactory.decodeByteArray(img, 0 ,img.length);
+                movieThumb.setImageBitmap(bm);
+            }
+        }
+    }
+
+    private static class PosterTarget implements Target {
+
+        ImageView mImageView;
+
+        private PosterTarget(ImageView mImageView) {
+            this.mImageView = mImageView;
+        }
+
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            mImageView.setImageBitmap(bitmap);
+        }
+
+        @Override
+        public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {
+
         }
     }
 }

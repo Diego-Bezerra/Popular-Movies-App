@@ -8,13 +8,16 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import br.com.popularmoviesapp.popularmovies.data.movie.MovieContract;
+
 public class PopularMoviesProvider extends ContentProvider {
 
     public static final int CODE_MOVIES = 100;
-    public static final int CODE_VIDEOS = 101;
-    public static final int CODE_REVIEWS = 102;
-    public static final int CODE_VIDEOS_WITH_MOVIE_ID = 103;
-    public static final int CODE_REVIEW_WITH_MOVIE_ID = 104;
+    public static final int CODE_MOVIES_ID = 101;
+    public static final int CODE_VIDEOS = 102;
+    public static final int CODE_REVIEWS = 103;
+    public static final int CODE_VIDEOS_WITH_MOVIE_ID = 104;
+    public static final int CODE_REVIEW_WITH_MOVIE_ID = 105;
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private PopularMoviesDBHelper mOpenHelper;
@@ -107,11 +110,27 @@ public class PopularMoviesProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
+
+        switch (sUriMatcher.match(uri)) {
+            case CODE_MOVIES_ID:
+                String movieId = uri.getLastPathSegment();
+                mOpenHelper.getWritableDatabase()
+                        .update(MovieContract.MovieEntry.TABLE_NAME
+                                , values
+                                , MovieContract.MovieEntry._ID + "=?"
+                                , new String[] {movieId});
+                break;
+        }
+
         return 0;
     }
 
     @Override
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
         return super.bulkInsert(uri, values);
+    }
+
+    public static void updateMoviePoster() {
+
     }
 }

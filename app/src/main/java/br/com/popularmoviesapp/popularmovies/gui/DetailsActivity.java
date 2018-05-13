@@ -12,7 +12,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import br.com.popularmoviesapp.popularmovies.network.MovieResponse;
 import br.com.popularmoviesapp.popularmovies.R;
 
 public class DetailsActivity extends AppCompatActivity {

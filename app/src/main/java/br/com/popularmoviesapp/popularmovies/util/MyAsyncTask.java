@@ -1,4 +1,4 @@
-package br.com.popularmoviesapp.popularmovies.network;
+package br.com.popularmoviesapp.popularmovies.util;
 
 import android.os.AsyncTask;
 

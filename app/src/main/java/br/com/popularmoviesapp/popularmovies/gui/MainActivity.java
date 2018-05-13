@@ -22,14 +22,14 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import br.com.popularmoviesapp.popularmovies.R;
-import br.com.popularmoviesapp.popularmovies.data.MovieContract;
-import br.com.popularmoviesapp.popularmovies.network.MovieApiService;
-import br.com.popularmoviesapp.popularmovies.network.MovieResponse;
-import br.com.popularmoviesapp.popularmovies.network.MyAsyncTask;
-import br.com.popularmoviesapp.popularmovies.network.NetworkUtils;
+import br.com.popularmoviesapp.popularmovies.data.movie.MovieContract;
+import br.com.popularmoviesapp.popularmovies.api.MovieService;
+import br.com.popularmoviesapp.popularmovies.api.reponses.MovieResponse;
+import br.com.popularmoviesapp.popularmovies.util.MyAsyncTask;
+import br.com.popularmoviesapp.popularmovies.util.NetworkUtils;
 
-public class MainActivity extends AppCompatActivity implements MovieListAdapter.MovieItemClickListener
-        , MyAsyncTask.AsyncTaskListener<MovieSortEnum, ArrayList<MovieResponse>>, LoaderManager.LoaderCallbacks<Cursor> {
+public class MainActivity extends AppCompatActivity implements MovieListAdapter.MovieItemClickListener,
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String LIST_STATE = "list_state";
     private static final String SORT_STATE = "sort_state";
@@ -42,13 +42,13 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     private TextView mNoResults;
     private MovieSortEnum mSelectedSort;
     private MovieListAdapter mAdapter;
-    private ArrayList<MovieResponse> mMovieListResponse;
 
     public static final String[] MAIN_MOVIE_PROJECTION = {
             MovieContract.MovieEntry._ID,
             MovieContract.MovieEntry.COLUMN_TITLE,
             MovieContract.MovieEntry.COLUMN_SYNOPSIS,
             MovieContract.MovieEntry.COLUMN_POSTER,
+            MovieContract.MovieEntry.COLUMN_POSTER_URL,
             MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
             MovieContract.MovieEntry.COLUMN_POPULARITY,
             MovieContract.MovieEntry.COLUMN_FAVORITE
@@ -58,9 +58,10 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     public static final int INDEX_MOVIE_TITLE = 1;
     public static final int INDEX_MOVIE_SYNOPSIS = 2;
     public static final int INDEX_MOVIE_POSTER = 3;
-    public static final int INDEX_MOVIE_RELASE_DATE = 4;
-    public static final int INDEX_MOVIE_POPULARITY = 5;
-    public static final int INDEX_MOVIE_FAVORITE = 6;
+    public static final int INDEX_MOVIE_POSTER_URL = 4;
+    public static final int INDEX_MOVIE_RELASE_DATE = 5;
+    public static final int INDEX_MOVIE_POPULARITY = 6;
+    public static final int INDEX_MOVIE_FAVORITE = 7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,9 +189,9 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         MovieSortEnum sortEnum = params[0];
         switch (sortEnum) {
             case POPULAR:
-                return MovieApiService.getPopularMovies();
+                return MovieService.getPopularMovies();
             case TOP_RATED:
-                return MovieApiService.getTopRatedMovies();
+                return MovieService.getTopRatedMovies();
         }
         return null;
     }
