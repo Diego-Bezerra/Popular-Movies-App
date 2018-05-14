@@ -24,6 +24,10 @@
         <activity
             android:name="br.com.popularmoviesapp.popularmovies.gui.DetailsActivity"
             android:launchMode="singleInstance" />
+        <provider
+            android:name=".data.PopularMoviesProvider"
+            android:authorities="br.com.popularmovies"
+            android:exported="false"/>
         <service
             android:name=".sync.PopularMoviesSyncJobIntentService"
             android:exported="false" />

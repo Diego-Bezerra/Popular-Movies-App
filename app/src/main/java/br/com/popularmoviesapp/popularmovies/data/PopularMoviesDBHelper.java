@@ -37,7 +37,7 @@ public class PopularMoviesDBHelper extends SQLiteOpenHelper {
                 + VideoContract.COLUMN_KEY + " TEXT NOT NULL, "
                 + VideoContract.COLUMN_TYPE + " TEXT NOT NULL, "
                 + VideoContract.COLUMN_MOVIE + " INTEGER NOT NULL, "
-                + " (FOREIGN KEY ("+ VideoContract.COLUMN_MOVIE +") REFERENCES ("+ VideoContract._ID +")))";
+                + " FOREIGN KEY ("+ VideoContract.COLUMN_MOVIE +") REFERENCES "+VideoContract.TABLE_NAME+"("+ VideoContract._ID +"));";
         db.execSQL(SQL_CREATE_VIDEO_TABLE);
 
         final String SQL_CREATE_REVIEW_TABLE = "CREATE TABLE " + ReviewContract.TABLE_NAME + " ("
@@ -46,12 +46,13 @@ public class PopularMoviesDBHelper extends SQLiteOpenHelper {
                 + ReviewContract.COLUMN_CONTENT + " TEXT NOT NULL, "
                 + ReviewContract.COLUMN_URL + " TEXT NOT NULL, "
                 + ReviewContract.COLUMN_MOVIE + " INTEGER NOT NULL, "
-                + " (FOREIGN KEY ("+ ReviewContract.COLUMN_MOVIE +") REFERENCES ("+ ReviewContract._ID +")))";
+                + " FOREIGN KEY ("+ ReviewContract.COLUMN_MOVIE +") REFERENCES "+ ReviewContract.TABLE_NAME +"("+ ReviewContract._ID +"));";
         db.execSQL(SQL_CREATE_REVIEW_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        db.execSQL("DROP TABLE IF EXISTS " + MovieContract.TABLE_NAME);
+        onCreate(db);
     }
 }

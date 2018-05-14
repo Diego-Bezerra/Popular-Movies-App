@@ -16,13 +16,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import br.com.popularmoviesapp.popularmovies.R;
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieContract;
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieProvider;
 import br.com.popularmoviesapp.popularmovies.sync.PopularMoviesSyncUtils;
-import br.com.popularmoviesapp.popularmovies.util.NetworkUtils;
 
 public class MainActivity extends AppCompatActivity implements MovieListAdapter.MovieItemClickListener,
         LoaderManager.LoaderCallbacks<Cursor> {
@@ -180,17 +178,10 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         switch (id) {
             case ID_MOVIES_LOADER:
-                if (!NetworkUtils.isNetworkAvailable(this)) {
-                    Toast.makeText(this
-                            , this.getText(R.string.no_internet)
-                            , Toast.LENGTH_LONG).show();
-                    return null;
-                } else {
-                    mNoResults.setVisibility(View.GONE);
-                    mProgress.setVisibility(View.VISIBLE);
-                    mMovieList.setAdapter(null);
-                    return MovieProvider.getAllMoviesCursorLoader(selectedSort, this);
-                }
+                mNoResults.setVisibility(View.GONE);
+                mProgress.setVisibility(View.VISIBLE);
+                mMovieList.setAdapter(null);
+                return MovieProvider.getAllMoviesCursorLoader(selectedSort, this);
             default:
                 throw new RuntimeException("Loader Not Implemented: " + id);
         }

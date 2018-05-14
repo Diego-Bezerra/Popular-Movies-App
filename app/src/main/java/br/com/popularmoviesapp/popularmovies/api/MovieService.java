@@ -41,19 +41,23 @@ public class MovieService extends BaseService {
         return new URL(uri.toString());
     }
 
-    public static void getPopularMovies(Context context) throws MalformedURLException {
+    public static void getPopularMovies(Context context) {
         getMovies(context, POPULAR_PATH);
     }
 
-    public static void getTopRatedMovies(Context context) throws MalformedURLException {
+    public static void getTopRatedMovies(Context context) {
         getMovies(context, TOP_RATED_PATH);
     }
 
-    private static void getMovies(Context context, String path) throws MalformedURLException {
-
-        URL url = getMoviesApiURL(path);
+    private static void getMovies(Context context, String path) {
 
         try {
+
+            if (!NetworkUtils.isNetworkAvailable(context)) {
+                throw new IllegalStateException("No internet connection");
+            }
+
+            URL url = getMoviesApiURL(path);
 
             String jsonResponse = NetworkUtils.getResponseFromHttpUrl(url);
             JSONObject jsonObject = new JSONObject(jsonResponse);
@@ -69,11 +73,14 @@ public class MovieService extends BaseService {
 
                 ContentResolver contentResolver = context.getContentResolver();
                 contentResolver.bulkInsert(MovieContract.CONTENT_URI, contentValues);
+
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IllegalStateException e) {
             e.printStackTrace();
         }
     }

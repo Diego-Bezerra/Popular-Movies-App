@@ -11,4 +11,6 @@
     <string name="format_rating">Rating: %s</string>
     <string name="format_release_date">Release date: %s</string>
     <string name="favorites">Favorites</string>
+
+    <string name="provider_authority">br.com.popularmovies</string>
 </resources>
