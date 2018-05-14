@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -19,22 +18,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
 import br.com.popularmoviesapp.popularmovies.R;
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieContract;
-import br.com.popularmoviesapp.popularmovies.api.MovieService;
-import br.com.popularmoviesapp.popularmovies.api.reponses.MovieResponse;
-import br.com.popularmoviesapp.popularmovies.util.MyAsyncTask;
+import br.com.popularmoviesapp.popularmovies.data.movie.MovieProvider;
+import br.com.popularmoviesapp.popularmovies.sync.PopularMoviesSyncUtils;
 import br.com.popularmoviesapp.popularmovies.util.NetworkUtils;
 
 public class MainActivity extends AppCompatActivity implements MovieListAdapter.MovieItemClickListener,
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String LIST_STATE = "list_state";
     private static final String SORT_STATE = "sort_state";
-    private static final String MOVIE_LIST_RESPONSE_STATE = "moview_list_response_state";
-    private static final String ALREADY_MADE_QUERY_STATE = "already_made_query_state";
     private static final int ID_MOVIES_LOADER = 10;
 
     private RecyclerView mMovieList;
@@ -42,16 +35,17 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     private TextView mNoResults;
     private MovieSortEnum mSelectedSort;
     private MovieListAdapter mAdapter;
+    private MovieSortEnum selectedSort;
 
     public static final String[] MAIN_MOVIE_PROJECTION = {
-            MovieContract.MovieEntry._ID,
-            MovieContract.MovieEntry.COLUMN_TITLE,
-            MovieContract.MovieEntry.COLUMN_SYNOPSIS,
-            MovieContract.MovieEntry.COLUMN_POSTER,
-            MovieContract.MovieEntry.COLUMN_POSTER_URL,
-            MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
-            MovieContract.MovieEntry.COLUMN_POPULARITY,
-            MovieContract.MovieEntry.COLUMN_FAVORITE
+            MovieContract._ID,
+            MovieContract.COLUMN_TITLE,
+            MovieContract.COLUMN_SYNOPSIS,
+            MovieContract.COLUMN_POSTER,
+            MovieContract.COLUMN_POSTER_URL,
+            MovieContract.COLUMN_RELEASE_DATE,
+            MovieContract.COLUMN_POPULARITY,
+            MovieContract.COLUMN_FAVORITE
     };
 
     public static final int INDEX_MOVIE_ID = 0;
@@ -72,21 +66,15 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         mProgress = findViewById(R.id.pg_progress);
         mNoResults = findViewById(R.id.tv_no_results);
 
-        MovieSortEnum sort = MovieSortEnum.POPULAR;
+        selectedSort = MovieSortEnum.POPULAR;
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(SORT_STATE)) {
-                sort = (MovieSortEnum) savedInstanceState.getSerializable(SORT_STATE);
-            }
-            if (savedInstanceState.containsKey(MOVIE_LIST_RESPONSE_STATE)) {
-                mMovieListResponse = savedInstanceState.getParcelableArrayList(MOVIE_LIST_RESPONSE_STATE);
+                selectedSort = (MovieSortEnum) savedInstanceState.getSerializable(SORT_STATE);
             }
         }
 
-        setupMovieList(mMovieListResponse);
         getSupportLoaderManager().initLoader(ID_MOVIES_LOADER, null, this);
-//        if (mMovieListResponse == null) {
-//            executeMovieAsyncTask(sort);
-//        }
+        PopularMoviesSyncUtils.initialize(this);
 
     }
 
@@ -125,32 +113,19 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sort_action_popular:
-                executeMovieAsyncTask(MovieSortEnum.POPULAR);
+                selectedSort = MovieSortEnum.POPULAR;
                 break;
             case R.id.sort_action_top_rated:
-                executeMovieAsyncTask(MovieSortEnum.TOP_RATED);
+                selectedSort = MovieSortEnum.TOP_RATED;
                 break;
             case R.id.sort_action_favorites:
-                //executeMovieAsyncTask(MovieSortEnum.FAVORITE);
+                selectedSort = MovieSortEnum.FAVORITE;
                 break;
-
-
         }
+
+        getSupportLoaderManager().initLoader(ID_MOVIES_LOADER, null, this);
+
         return super.onOptionsItemSelected(item);
-    }
-
-    private void executeMovieAsyncTask(MovieSortEnum movieSort) {
-
-        mSelectedSort = movieSort;
-        if (!NetworkUtils.isNetworkAvailable(this)) {
-
-            Toast.makeText(this
-                    , this.getText(R.string.no_internet)
-                    , Toast.LENGTH_LONG).show();
-            return;
-        }
-        new MyAsyncTask<MovieSortEnum, Void, ArrayList<MovieResponse>>(this).execute(movieSort);
-
     }
 
     private void showNoResults(boolean show) {
@@ -166,53 +141,19 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putSerializable(SORT_STATE, mSelectedSort);
-        outState.putParcelableArrayList(MOVIE_LIST_RESPONSE_STATE, mMovieListResponse);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     public void onMovieClick(int movieId) {
         Intent intent = new Intent(this, DetailsActivity.class);
-        intent.putExtra(DetailsActivity.EXTRA_MOVIE, movieId);
+        intent.putExtra(DetailsActivity.EXTRA_MOVIE_ID, movieId);
         startActivity(intent);
     }
 
-    @Override
-    public void onPreExecute() {
-        mNoResults.setVisibility(View.GONE);
-        mProgress.setVisibility(View.VISIBLE);
-        mMovieList.setAdapter(null);
-    }
+    private void setupMovieList(Cursor cursor) {
 
-    @Override
-    public ArrayList<MovieResponse> doInBackground(MovieSortEnum[] params) {
-        MovieSortEnum sortEnum = params[0];
-        switch (sortEnum) {
-            case POPULAR:
-                return MovieService.getPopularMovies();
-            case TOP_RATED:
-                return MovieService.getTopRatedMovies();
-        }
-        return null;
-    }
-
-    @Override
-    public void onPostExecute(ArrayList<MovieResponse> parameter) {
-
-        mProgress.setVisibility(View.INVISIBLE);
-
-        if (parameter.size() > 0) {
-            mMovieListResponse = parameter;
-            showNoResults(true);
-            setupMovieList(parameter);
-        } else {
-            showNoResults(false);
-        }
-    }
-
-    private void setupMovieList(ArrayList<MovieResponse> movieResponse) {
-
-        if (movieResponse == null) return;
+        if (cursor == null || cursor.getCount() == 0) return;
 
         final int SW_TABLET = 600;
 
@@ -226,10 +167,10 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
             GridLayoutManager gridLayoutManager = new GridLayoutManager(this, spanCount);
             mMovieList.setHasFixedSize(true);
             mMovieList.setLayoutManager(gridLayoutManager);
-            mAdapter = new MovieListAdapter(movieResponse, this);
+            mAdapter = new MovieListAdapter(cursor, this);
             mMovieList.setAdapter(mAdapter);
         } else {
-            mAdapter.setMovies(movieResponse);
+            mAdapter.swipeData(cursor);
             mAdapter.notifyDataSetChanged();
         }
     }
@@ -239,12 +180,17 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         switch (id) {
             case ID_MOVIES_LOADER:
-                return new CursorLoader(MainActivity.this
-                        , MovieContract.MovieEntry.CONTENT_URI
-                        , MAIN_MOVIE_PROJECTION
-                        , null
-                        , null
-                        , MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC");
+                if (!NetworkUtils.isNetworkAvailable(this)) {
+                    Toast.makeText(this
+                            , this.getText(R.string.no_internet)
+                            , Toast.LENGTH_LONG).show();
+                    return null;
+                } else {
+                    mNoResults.setVisibility(View.GONE);
+                    mProgress.setVisibility(View.VISIBLE);
+                    mMovieList.setAdapter(null);
+                    return MovieProvider.getAllMoviesCursorLoader(selectedSort, this);
+                }
             default:
                 throw new RuntimeException("Loader Not Implemented: " + id);
         }
@@ -252,7 +198,15 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
 
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-        mAdapter.
+
+        mProgress.setVisibility(View.INVISIBLE);
+
+        if (data != null && data.getCount() > 0) {
+            showNoResults(true);
+            setupMovieList(data);
+        } else {
+            showNoResults(false);
+        }
     }
 
     @Override

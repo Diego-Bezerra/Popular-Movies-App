@@ -1,29 +1,77 @@
 package br.com.popularmoviesapp.popularmovies.data.movie;
 
-import android.content.UriMatcher;
+import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+
+import br.com.popularmoviesapp.popularmovies.gui.MovieSortEnum;
 
 public class MovieProvider {
 
-    public static final int CODE_MOVIES = 100;
-    public static final int CODE_MOVIES_ID = 101;
+    public static Loader<Cursor> getAllMoviesCursorLoader(MovieSortEnum sortEnum, Context context) {
+        String sortColumn = getSortColumn(sortEnum);
+        String selection = null;
+        String[] selectionArgs = null;
+        if (sortEnum == MovieSortEnum.FAVORITE) {
+            selection = MovieContract.COLUMN_FAVORITE + "=?";
+            selectionArgs = new String[]{"1"};
+        }
 
-    private static final UriMatcher sUriMatcher = buildUriMatcher();
-
-    public static UriMatcher buildUriMatcher() {
-        final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
-        final String authority = MovieContract.CONTENT_AUTHORITY;
-        matcher.addURI(authority, MovieContract.PATH_MOVIE, CODE_MOVIES);
-
-        return matcher;
+        return new CursorLoader(context
+                , MovieContract.CONTENT_URI
+                , null
+                , selection
+                , selectionArgs
+                , sortColumn + " DESC");
     }
 
-    public static Cursor query() {
+    public static Cursor getAllMoviesCursor(MovieSortEnum sortEnum, Context context) {
+        String sortColumn = getSortColumn(sortEnum);
+        String selection = null;
+        String[] selectionArgs = null;
+        if (sortEnum == MovieSortEnum.FAVORITE) {
+            selection = MovieContract.COLUMN_FAVORITE + "=?";
+            selectionArgs = new String[]{"1"};
+        }
 
-        Cursor cursor;
-        String movieId;
-        String[] selectionArguments;
+        return context.getContentResolver()
+                .query(MovieContract.CONTENT_URI
+                , null
+                , selection
+                , selectionArgs
+                , sortColumn + " DESC");
+    }
 
-        if (sUriMatcher.)
+    private static String getSortColumn(MovieSortEnum sortEnum) {
+        String sortColumn = MovieContract.COLUMN_POPULARITY;
+        if (sortEnum == MovieSortEnum.TOP_RATED) {
+            sortColumn = MovieContract.COLUMN_AVERAGE;
+        }
+
+        return sortColumn;
+    }
+
+    public static Cursor getMovieById(int movieId, Context context) {
+        Uri uri = MovieContract.CONTENT_URI.buildUpon().appendPath(movieId + "").build();
+        return context.getContentResolver()
+                .query(uri
+                        , null
+                        , MovieContract._ID + "=?"
+                        , new String[]{movieId + ""}
+                        , MovieContract.COLUMN_POPULARITY + " DESC");
+    }
+
+    public static int updateMoviePoster(int movieId, byte[] img, Context context) {
+        Uri uri = MovieContract.CONTENT_URI.buildUpon().appendPath(movieId + "").build();
+        ContentValues values = new ContentValues();
+        values.put(MovieContract.COLUMN_POSTER, img);
+        return context.getContentResolver()
+                .update(uri
+                        , values
+                        , MovieContract._ID + "=?"
+                        , new String[]{movieId + ""});
     }
 }

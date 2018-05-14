@@ -1,5 +1,6 @@
 package br.com.popularmoviesapp.popularmovies.gui;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -9,10 +10,14 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 import br.com.popularmoviesapp.popularmovies.R;
+import br.com.popularmoviesapp.popularmovies.data.movie.MovieContract;
+import br.com.popularmoviesapp.popularmovies.data.movie.MovieProvider;
 
 public class DetailsActivity extends AppCompatActivity {
 
@@ -32,12 +37,31 @@ public class DetailsActivity extends AppCompatActivity {
         if (getIntent().hasExtra(EXTRA_MOVIE_ID)) {
             int movieId = getIntent().getIntExtra(EXTRA_MOVIE_ID, 0);
             if (movieId > 0) {
-                Picasso.get().load(movie.posterPath).into(mMovieThumb);
-                mOriginalTitle.setText(movie.originalTitle);
-                mSynopsis.setText(movie.overview);
-                mRating.setText(String.valueOf(String.valueOf(movie.voteAverage)));
-                DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy", Locale.US);
-                mReleaseDate.setText(df.format(movie.releaseDate));
+
+                Cursor cursor = MovieProvider.getMovieById(movieId, this);
+                if (cursor != null && cursor.getCount() > 0) {
+
+                    String posterPath = cursor.getString(cursor.getColumnIndex(MovieContract.COLUMN_POSTER));
+                    String title = cursor.getString(cursor.getColumnIndex(MovieContract.COLUMN_TITLE));
+                    double average = cursor.getDouble(cursor.getColumnIndex(MovieContract.COLUMN_AVERAGE));
+                    String synopsis = cursor.getString(cursor.getColumnIndex(MovieContract.COLUMN_SYNOPSIS));
+                    String dateStr = cursor.getString(cursor.getColumnIndex(MovieContract.COLUMN_RELEASE_DATE));
+                    SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
+
+                    try {
+                        Date releaseDate = new Date(format.parse(dateStr).getTime());
+                        DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy", Locale.US);
+                        mReleaseDate.setText(df.format(releaseDate));
+
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    Picasso.get().load(posterPath).into(new PosterTarget(mMovieThumb, movieId, this));
+                    mOriginalTitle.setText(title);
+                    mSynopsis.setText(synopsis);
+                    mRating.setText(String.valueOf(String.valueOf(average)));
+                }
             }
         }
     }
@@ -45,5 +69,4 @@ public class DetailsActivity extends AppCompatActivity {
     private String formattedText(int formatResource, String textToInsert) {
         return String.format(getString(formatResource), textToInsert);
     }
-
 }
