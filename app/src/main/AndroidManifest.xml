@@ -8,7 +8,8 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
-        android:allowBackup="true"
+        android:name=".PopularMoviesApplication"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -23,11 +24,27 @@
         </activity>
         <activity
             android:name="br.com.popularmoviesapp.popularmovies.gui.DetailsActivity"
-            android:launchMode="singleInstance" />
+            android:launchMode="singleInstance">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".gui.MainActivity" />
+        </activity>
+
         <provider
-            android:name=".data.PopularMoviesProvider"
-            android:authorities="br.com.popularmovies"
-            android:exported="false"/>
+            android:name="br.com.popularmoviesapp.popularmovies.data.PopularMoviesProvider"
+            android:authorities="br.com.popularmoviesapp.popularmovies.data"
+            android:exported="false" />
+
+
+        <!--<provider-->
+            <!--android:name=".data.PopularMoviesProvider"-->
+            <!--android:authorities="br.com.popularmoviesapp.popularmovies.data"-->
+            <!--android:exported="true"-->
+            <!--android:grantUriPermissions="true"-->
+            <!--android:label="PopularMoviesProvider"-->
+            <!--android:readPermission="br.com.popularmoviesapp.popularmovies.data.READ"-->
+            <!--android:writePermission="br.com.popularmoviesapp.popularmovies.data.WRITE" />-->
+
         <service
             android:name=".sync.PopularMoviesSyncJobIntentService"
             android:exported="false" />

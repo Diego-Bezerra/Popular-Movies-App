@@ -19,6 +19,7 @@ public class PopularMoviesDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+
         final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MovieContract.TABLE_NAME + " ("
                 + MovieContract._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + MovieContract.COLUMN_TITLE + " TEXT NOT NULL, "

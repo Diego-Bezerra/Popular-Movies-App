@@ -29,7 +29,7 @@ public class PopularMoviesSyncUtils {
         }).start();
     }
 
-    private static void startImmediateSync(@NonNull final Context context) {
+    public static void startImmediateSync(@NonNull final Context context) {
         Intent intentToSyncImmediately = new Intent(context, PopularMoviesSyncJobIntentService.class);
         context.startService(intentToSyncImmediately);
     }

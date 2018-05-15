@@ -29,16 +29,20 @@ public class PopularMoviesProvider extends ContentProvider {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = MovieContract.CONTENT_AUTHORITY;
         matcher.addURI(authority, MovieContract.PATH_MOVIE, CODE_MOVIES);
+        matcher.addURI(authority, MovieContract.PATH_MOVIE + "/#", CODE_MOVIES_ID);
         matcher.addURI(authority, VideoContract.PATH_VIDEO + "/#", CODE_VIDEOS_WITH_MOVIE_ID);
         matcher.addURI(authority, ReviewContract.PATH_REVIEW + "/#", CODE_REVIEW_WITH_MOVIE_ID);
 
         return matcher;
     }
 
+    public PopularMoviesProvider() {
+    }
+
     @Override
     public boolean onCreate() {
         mOpenHelper = new PopularMoviesDBHelper(getContext());
-        //mOpenHelper.getWritableDatabase();
+        mOpenHelper.getWritableDatabase();
         return true;
     }
 
@@ -49,6 +53,7 @@ public class PopularMoviesProvider extends ContentProvider {
         String tableName;
         switch (sUriMatcher.match(uri)) {
             case CODE_MOVIES:
+            case CODE_MOVIES_ID:
                 tableName = MovieContract.TABLE_NAME;
                 break;
             case CODE_VIDEOS_WITH_MOVIE_ID:

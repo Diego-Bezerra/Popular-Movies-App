@@ -18,7 +18,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import br.com.popularmoviesapp.popularmovies.R;
-import br.com.popularmoviesapp.popularmovies.data.movie.MovieContract;
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieProvider;
 import br.com.popularmoviesapp.popularmovies.sync.PopularMoviesSyncUtils;
 
@@ -31,29 +30,8 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     private RecyclerView mMovieList;
     private ProgressBar mProgress;
     private TextView mNoResults;
-    private MovieSortEnum mSelectedSort;
     private MovieListAdapter mAdapter;
     private MovieSortEnum selectedSort;
-
-    public static final String[] MAIN_MOVIE_PROJECTION = {
-            MovieContract._ID,
-            MovieContract.COLUMN_TITLE,
-            MovieContract.COLUMN_SYNOPSIS,
-            MovieContract.COLUMN_POSTER,
-            MovieContract.COLUMN_POSTER_URL,
-            MovieContract.COLUMN_RELEASE_DATE,
-            MovieContract.COLUMN_POPULARITY,
-            MovieContract.COLUMN_FAVORITE
-    };
-
-    public static final int INDEX_MOVIE_ID = 0;
-    public static final int INDEX_MOVIE_TITLE = 1;
-    public static final int INDEX_MOVIE_SYNOPSIS = 2;
-    public static final int INDEX_MOVIE_POSTER = 3;
-    public static final int INDEX_MOVIE_POSTER_URL = 4;
-    public static final int INDEX_MOVIE_RELASE_DATE = 5;
-    public static final int INDEX_MOVIE_POPULARITY = 6;
-    public static final int INDEX_MOVIE_FAVORITE = 7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
 
         getSupportLoaderManager().initLoader(ID_MOVIES_LOADER, null, this);
         PopularMoviesSyncUtils.initialize(this);
-
     }
 
     @Override
@@ -109,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        MovieSortEnum oldSelected = selectedSort;
         switch (item.getItemId()) {
             case R.id.sort_action_popular:
                 selectedSort = MovieSortEnum.POPULAR;
@@ -121,7 +99,9 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
                 break;
         }
 
-        getSupportLoaderManager().initLoader(ID_MOVIES_LOADER, null, this);
+        if (oldSelected != selectedSort) {
+            getSupportLoaderManager().restartLoader(ID_MOVIES_LOADER, null, this);
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -138,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable(SORT_STATE, mSelectedSort);
+        outState.putSerializable(SORT_STATE, selectedSort);
         super.onSaveInstanceState(outState);
     }
 

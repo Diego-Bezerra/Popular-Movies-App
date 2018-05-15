@@ -1,6 +1,8 @@
 package br.com.popularmoviesapp.popularmovies.gui;
 
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -41,7 +43,17 @@ public class DetailsActivity extends AppCompatActivity {
                 Cursor cursor = MovieProvider.getMovieById(movieId, this);
                 if (cursor != null && cursor.getCount() > 0) {
 
-                    String posterPath = cursor.getString(cursor.getColumnIndex(MovieContract.COLUMN_POSTER));
+                    cursor.moveToNext();
+
+                    byte[] img = cursor.getBlob(cursor.getColumnIndex(MovieContract.COLUMN_POSTER));
+                    if (img == null) {
+                        String posterPath = cursor.getString(cursor.getColumnIndex(MovieContract.COLUMN_POSTER_URL));
+                        Picasso.get().load(posterPath).into(new PosterTarget(mMovieThumb, movieId, this));
+                    } else {
+                        Bitmap bm = BitmapFactory.decodeByteArray(img, 0 ,img.length);
+                        mMovieThumb.setImageBitmap(bm);
+                    }
+
                     String title = cursor.getString(cursor.getColumnIndex(MovieContract.COLUMN_TITLE));
                     double average = cursor.getDouble(cursor.getColumnIndex(MovieContract.COLUMN_AVERAGE));
                     String synopsis = cursor.getString(cursor.getColumnIndex(MovieContract.COLUMN_SYNOPSIS));
@@ -57,10 +69,11 @@ public class DetailsActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    Picasso.get().load(posterPath).into(new PosterTarget(mMovieThumb, movieId, this));
                     mOriginalTitle.setText(title);
                     mSynopsis.setText(synopsis);
                     mRating.setText(String.valueOf(String.valueOf(average)));
+
+                    cursor.close();
                 }
             }
         }

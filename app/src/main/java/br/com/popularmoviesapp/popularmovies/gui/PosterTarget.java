@@ -33,7 +33,6 @@ public class PosterTarget implements Target {
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 byte[] byteArray = stream.toByteArray();
-                bitmap.recycle();
 
                 MovieProvider.updateMoviePoster(movieId, byteArray, context);
             }
