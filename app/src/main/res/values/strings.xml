@@ -13,4 +13,5 @@
     <string name="favorites">Favorites</string>
 
     <string name="provider_authority">br.com.popularmovies</string>
+    <string name="json_format_pattern">yyyy-MM-dd</string>
 </resources>

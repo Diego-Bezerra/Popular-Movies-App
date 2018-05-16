@@ -39,10 +39,22 @@ public class MovieProvider {
 
         return context.getContentResolver()
                 .query(MovieContract.CONTENT_URI
-                , null
-                , selection
-                , selectionArgs
-                , sortColumn + " DESC");
+                        , null
+                        , selection
+                        , selectionArgs
+                        , sortColumn + " DESC");
+    }
+
+    public static int deleteAll(Context context) {
+        return context.getContentResolver()
+                .delete(MovieContract.CONTENT_URI
+                        , null
+                        , null);
+    }
+
+    public static void bulkInsert(ContentValues[] contentValues, Context context) {
+        context.getContentResolver()
+                .bulkInsert(MovieContract.CONTENT_URI, contentValues);
     }
 
     private static String getSortColumn(MovieSortEnum sortEnum) {
@@ -54,14 +66,14 @@ public class MovieProvider {
         return sortColumn;
     }
 
-    public static Cursor getMovieById(int movieId, Context context) {
+    public static Loader<Cursor> getMovieById(int movieId, Context context) {
         Uri uri = MovieContract.CONTENT_URI.buildUpon().appendPath(movieId + "").build();
-        return context.getContentResolver()
-                .query(uri
-                        , null
-                        , MovieContract._ID + "=?"
-                        , new String[]{movieId + ""}
-                        , MovieContract.COLUMN_POPULARITY + " DESC");
+        return new CursorLoader(context
+                , uri
+                , null
+                , MovieContract._ID + "=?"
+                , new String[]{movieId + ""}
+                , MovieContract.COLUMN_POPULARITY + " DESC");
     }
 
     public static int updateMoviePoster(int movieId, byte[] img, Context context) {

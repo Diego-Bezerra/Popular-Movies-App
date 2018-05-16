@@ -3,6 +3,7 @@ package br.com.popularmoviesapp.popularmovies.gui;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,15 +11,13 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import br.com.popularmoviesapp.popularmovies.R;
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieProvider;
+import br.com.popularmoviesapp.popularmovies.databinding.ActivityMainBinding;
 import br.com.popularmoviesapp.popularmovies.sync.PopularMoviesSyncUtils;
 
 public class MainActivity extends AppCompatActivity implements MovieListAdapter.MovieItemClickListener,
@@ -27,20 +26,14 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     private static final String SORT_STATE = "sort_state";
     private static final int ID_MOVIES_LOADER = 10;
 
-    private RecyclerView mMovieList;
-    private ProgressBar mProgress;
-    private TextView mNoResults;
+    private ActivityMainBinding mainBinding;
     private MovieListAdapter mAdapter;
     private MovieSortEnum selectedSort;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        mMovieList = findViewById(R.id.rc_movie_list);
-        mProgress = findViewById(R.id.pg_progress);
-        mNoResults = findViewById(R.id.tv_no_results);
+        mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         selectedSort = MovieSortEnum.POPULAR;
         if (savedInstanceState != null) {
@@ -108,11 +101,11 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
 
     private void showNoResults(boolean show) {
         if (show) {
-            mMovieList.setVisibility(View.VISIBLE);
-            mNoResults.setVisibility(View.GONE);
+            mainBinding.rcMovieList.setVisibility(View.VISIBLE);
+            mainBinding.tvNoResults.setVisibility(View.GONE);
         } else {
-            mMovieList.setVisibility(View.INVISIBLE);
-            mNoResults.setVisibility(View.VISIBLE);
+            mainBinding.rcMovieList.setVisibility(View.INVISIBLE);
+            mainBinding.tvNoResults.setVisibility(View.VISIBLE);
         }
     }
 
@@ -135,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
 
         final int SW_TABLET = 600;
 
-        if (mMovieList.getAdapter() == null) {
+        if (mainBinding.rcMovieList.getAdapter() == null) {
             Configuration config = getResources().getConfiguration();
             int spanCount = 2;
             if (config.smallestScreenWidthDp >= SW_TABLET || getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -143,10 +136,10 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
             }
 
             GridLayoutManager gridLayoutManager = new GridLayoutManager(this, spanCount);
-            mMovieList.setHasFixedSize(true);
-            mMovieList.setLayoutManager(gridLayoutManager);
+            mainBinding.rcMovieList.setHasFixedSize(true);
+            mainBinding.rcMovieList.setLayoutManager(gridLayoutManager);
             mAdapter = new MovieListAdapter(cursor, this);
-            mMovieList.setAdapter(mAdapter);
+            mainBinding.rcMovieList.setAdapter(mAdapter);
         } else {
             mAdapter.swipeData(cursor);
             mAdapter.notifyDataSetChanged();
@@ -158,9 +151,9 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         switch (id) {
             case ID_MOVIES_LOADER:
-                mNoResults.setVisibility(View.GONE);
-                mProgress.setVisibility(View.VISIBLE);
-                mMovieList.setAdapter(null);
+                mainBinding.tvNoResults.setVisibility(View.GONE);
+                mainBinding.pgProgress.setVisibility(View.VISIBLE);
+                mainBinding.rcMovieList.setAdapter(null);
                 return MovieProvider.getAllMoviesCursorLoader(selectedSort, this);
             default:
                 throw new RuntimeException("Loader Not Implemented: " + id);
@@ -170,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
 
-        mProgress.setVisibility(View.INVISIBLE);
+        mainBinding.pgProgress.setVisibility(View.INVISIBLE);
 
         if (data != null && data.getCount() > 0) {
             showNoResults(true);

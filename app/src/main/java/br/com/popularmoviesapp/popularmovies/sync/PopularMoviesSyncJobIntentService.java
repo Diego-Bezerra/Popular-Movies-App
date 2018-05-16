@@ -10,6 +10,6 @@ public class PopularMoviesSyncJobIntentService extends JobIntentService {
 
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
-        MovieService.getPopularMovies(this.getBaseContext());
+        MovieService.syncMoviesData(this.getBaseContext());
     }
 }

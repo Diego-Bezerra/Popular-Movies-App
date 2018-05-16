@@ -1,6 +1,5 @@
 package br.com.popularmoviesapp.popularmovies.api;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
@@ -10,18 +9,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieContract;
+import br.com.popularmoviesapp.popularmovies.data.movie.MovieProvider;
 import br.com.popularmoviesapp.popularmovies.util.NetworkUtils;
 
 public class MovieService extends BaseService {
 
-    private static final String MOVIE_PATH = "movie";
     private static final String POPULAR_PATH = "popular";
     private static final String TOP_RATED_PATH = "top_rated";
-    private static final String RESULTS_JSON = "results";
     //json keys
     private static final String TITLE_JSON = "title";
     private static final String VOTE_AVERAGE_JSON = "vote_average";
@@ -30,23 +27,8 @@ public class MovieService extends BaseService {
     private static final String OVERVIEW_JSON = "overview";
     private static final String RELEASE_DATE_JSON = "release_date";
 
-    private static URL getMoviesApiURL(String path) throws MalformedURLException {
-
-        Uri uri = Uri.parse(BASE_URL)
-                .buildUpon()
-                .appendPath(MOVIE_PATH)
-                .appendPath(path)
-                .appendQueryParameter(API_KEY_QUERY, API_KEY).build();
-
-        return new URL(uri.toString());
-    }
-
-    public static void getPopularMovies(Context context) {
+    public static void syncMoviesData(Context context) {
         getMovies(context, POPULAR_PATH);
-    }
-
-    public static void getTopRatedMovies(Context context) {
-        getMovies(context, TOP_RATED_PATH);
     }
 
     private static void getMovies(Context context, String path) {
@@ -71,9 +53,8 @@ public class MovieService extends BaseService {
                     contentValues[i] = getContentValuesFromJson(json);
                 }
 
-                ContentResolver contentResolver = context.getContentResolver();
-                contentResolver.bulkInsert(MovieContract.CONTENT_URI, contentValues);
-
+                MovieProvider.deleteAll(context);
+                MovieProvider.bulkInsert(contentValues, context);
             }
 
         } catch (IOException e) {
