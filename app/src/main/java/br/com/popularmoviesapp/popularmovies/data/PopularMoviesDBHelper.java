@@ -22,6 +22,7 @@ public class PopularMoviesDBHelper extends SQLiteOpenHelper {
 
         final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MovieContract.TABLE_NAME + " ("
                 + MovieContract._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + MovieContract.COLUMN_API_ID + " INTEGER NOT NULL, "
                 + MovieContract.COLUMN_TITLE + " TEXT NOT NULL, "
                 + MovieContract.COLUMN_RELEASE_DATE + " TEXT NOT NULL, "
                 + MovieContract.COLUMN_SYNOPSIS + " TEXT NOT NULL, "

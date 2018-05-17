@@ -1,7 +1,6 @@
 package br.com.popularmoviesapp.popularmovies.sync;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.os.AsyncTask;
 
 import com.firebase.jobdispatcher.JobParameters;
@@ -10,9 +9,7 @@ import com.firebase.jobdispatcher.JobService;
 import java.lang.ref.WeakReference;
 
 import br.com.popularmoviesapp.popularmovies.api.MovieService;
-import br.com.popularmoviesapp.popularmovies.data.movie.MovieContract;
-import br.com.popularmoviesapp.popularmovies.data.movie.MovieProvider;
-import br.com.popularmoviesapp.popularmovies.gui.MovieSortEnum;
+import br.com.popularmoviesapp.popularmovies.util.LogUtil;
 
 public class PopularMoviesJobService extends JobService {
 
@@ -44,14 +41,8 @@ public class PopularMoviesJobService extends JobService {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            MovieService.syncMoviesData(this.weakContext.get());
-            Cursor cursor = MovieProvider.getAllMoviesCursor(MovieSortEnum.POPULAR, this.weakContext.get());
-            if (cursor != null && cursor.getCount() > 0) {
-                while (cursor.moveToNext()) {
-                    int movieId = cursor.getInt(cursor.getColumnIndex(MovieContract._ID));
-
-                }
-            }
+            LogUtil.logInfo("--------JobService--------");
+            MovieService.syncAllDataMovies(weakContext.get());
             return null;
         }
     }

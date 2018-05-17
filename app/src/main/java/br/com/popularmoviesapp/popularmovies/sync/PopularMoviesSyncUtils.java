@@ -15,7 +15,7 @@ import com.firebase.jobdispatcher.Trigger;
 
 import java.util.concurrent.TimeUnit;
 
-import br.com.popularmoviesapp.popularmovies.data.movie.MovieProvider;
+import br.com.popularmoviesapp.popularmovies.data.movie.MovieProviderUtil;
 import br.com.popularmoviesapp.popularmovies.gui.MovieSortEnum;
 
 public class PopularMoviesSyncUtils {
@@ -37,7 +37,7 @@ public class PopularMoviesSyncUtils {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Cursor cursor = MovieProvider.getAllMoviesCursor(MovieSortEnum.POPULAR, context);
+                Cursor cursor = MovieProviderUtil.getAllMoviesCursor(MovieSortEnum.POPULAR, context);
                 if (cursor == null || cursor.getCount() == 0) {
                     startImmediateSync(context);
                 }
@@ -47,8 +47,8 @@ public class PopularMoviesSyncUtils {
     }
 
     private static void startImmediateSync(@NonNull final Context context) {
-        Intent intentToSyncImmediately = new Intent(context, PopularMoviesSyncJobIntentService.class);
-        context.startService(intentToSyncImmediately);
+        final int JOB_ID = 1;
+        PopularMoviesSyncJobIntentService.enqueueWork(context, PopularMoviesSyncJobIntentService.class, JOB_ID, new Intent());
     }
 
     private static void scheduleFirebaseJobDispatcherSync(@NonNull final Context context) {

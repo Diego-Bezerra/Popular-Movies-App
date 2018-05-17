@@ -10,7 +10,7 @@ import com.squareup.picasso.Target;
 
 import java.io.ByteArrayOutputStream;
 
-import br.com.popularmoviesapp.popularmovies.data.movie.MovieProvider;
+import br.com.popularmoviesapp.popularmovies.data.movie.MovieProviderUtil;
 
 public class PosterTarget implements Target {
 
@@ -34,7 +34,7 @@ public class PosterTarget implements Target {
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 byte[] byteArray = stream.toByteArray();
 
-                MovieProvider.updateMoviePoster(movieId, byteArray, context);
+                MovieProviderUtil.updateMoviePoster(movieId, byteArray, context);
             }
         }).start();
         mImageView.setImageBitmap(bitmap);

@@ -1,5 +1,6 @@
 package br.com.popularmoviesapp.popularmovies.gui;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -69,19 +70,19 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
         @Override
         public void onClick(View v) {
+            mMoviesCursor.moveToPosition(this.getLayoutPosition());
             int movieId = mMoviesCursor.getInt(mMoviesCursor.getColumnIndex(MovieContract._ID));
             mMovieItemClickListener.onMovieClick(movieId);
         }
 
         void bind(Cursor cursor) {
+            movieThumb.setImageResource(0);
             byte[] img = cursor.getBlob(cursor.getColumnIndex(MovieContract.COLUMN_POSTER));
             if (img == null) {
-                String urlEnd = cursor.getString(cursor.getColumnIndex(MovieContract.COLUMN_POSTER_URL));
-                String posterUrl = MovieService.getImageThumbPath(urlEnd);
-                int movieId = cursor.getInt(cursor.getColumnIndex(MovieContract._ID));
-                PosterTarget posterTarget = new PosterTarget(movieThumb, movieId, this.itemView.getContext());
-                movieThumb.setTag(posterTarget);
-                Picasso.get().load(posterUrl).into(posterTarget);
+                final int movieId = cursor.getInt(cursor.getColumnIndex(MovieContract._ID));
+                final String urlEnd = cursor.getString(cursor.getColumnIndex(MovieContract.COLUMN_POSTER_URL));
+                final Context context = this.itemView.getContext();
+                Picasso.get().load(MovieService.getImageThumbPath(urlEnd)).into(new PosterTarget(movieThumb, movieId, context));
             } else {
                 Bitmap bm = BitmapFactory.decodeByteArray(img, 0 ,img.length);
                 movieThumb.setImageBitmap(bm);

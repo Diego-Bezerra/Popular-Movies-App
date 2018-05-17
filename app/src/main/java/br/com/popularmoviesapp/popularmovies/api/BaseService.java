@@ -27,4 +27,16 @@ public class BaseService {
 
         return new URL(uri.toString());
     }
+
+    protected static URL getMoviesApiURLWithId(String path, int id) throws MalformedURLException {
+
+        Uri uri = Uri.parse(BASE_URL)
+                .buildUpon()
+                .appendPath(MOVIE_PATH)
+                .appendPath(id + "")
+                .appendPath(path)
+                .appendQueryParameter(API_KEY_QUERY, API_KEY).build();
+
+        return new URL(uri.toString());
+    }
 }

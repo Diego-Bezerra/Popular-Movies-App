@@ -21,7 +21,7 @@ import java.util.Locale;
 
 import br.com.popularmoviesapp.popularmovies.R;
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieContract;
-import br.com.popularmoviesapp.popularmovies.data.movie.MovieProvider;
+import br.com.popularmoviesapp.popularmovies.data.movie.MovieProviderUtil;
 import br.com.popularmoviesapp.popularmovies.databinding.ActivityDetailsBinding;
 
 public class DetailsActivity extends AppCompatActivity implements
@@ -50,7 +50,7 @@ public class DetailsActivity extends AppCompatActivity implements
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
-        return MovieProvider.getMovieById(movieId, this);
+        return MovieProviderUtil.getMovieById(movieId, this);
     }
 
     @Override

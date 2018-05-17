@@ -9,7 +9,7 @@ import android.support.v4.content.Loader;
 
 import br.com.popularmoviesapp.popularmovies.gui.MovieSortEnum;
 
-public class MovieProvider {
+public class MovieProviderUtil {
 
     public static Loader<Cursor> getAllMoviesCursorLoader(MovieSortEnum sortEnum, Context context) {
         String sortColumn = getSortColumn(sortEnum);
@@ -71,8 +71,8 @@ public class MovieProvider {
         return new CursorLoader(context
                 , uri
                 , null
-                , MovieContract._ID + "=?"
-                , new String[]{movieId + ""}
+                , null
+                , null
                 , MovieContract.COLUMN_POPULARITY + " DESC");
     }
 
@@ -83,7 +83,7 @@ public class MovieProvider {
         return context.getContentResolver()
                 .update(uri
                         , values
-                        , MovieContract._ID + "=?"
-                        , new String[]{movieId + ""});
+                        ,null
+                        , null);
     }
 }

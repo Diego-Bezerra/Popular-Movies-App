@@ -16,7 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import br.com.popularmoviesapp.popularmovies.R;
-import br.com.popularmoviesapp.popularmovies.data.movie.MovieProvider;
+import br.com.popularmoviesapp.popularmovies.data.movie.MovieProviderUtil;
 import br.com.popularmoviesapp.popularmovies.databinding.ActivityMainBinding;
 import br.com.popularmoviesapp.popularmovies.sync.PopularMoviesSyncUtils;
 
@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
                 mainBinding.tvNoResults.setVisibility(View.GONE);
                 mainBinding.pgProgress.setVisibility(View.VISIBLE);
                 mainBinding.rcMovieList.setAdapter(null);
-                return MovieProvider.getAllMoviesCursorLoader(selectedSort, this);
+                return MovieProviderUtil.getAllMoviesCursorLoader(selectedSort, this);
             default:
                 throw new RuntimeException("Loader Not Implemented: " + id);
         }
