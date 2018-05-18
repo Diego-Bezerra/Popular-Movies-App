@@ -17,8 +17,9 @@
                 android:layout_height="280dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="@dimen/default_padding"
+                android:src="@drawable/ic_image"
                 android:contentDescription="@string/movie_thumb_description"
-                android:scaleType="centerCrop" />
+                android:scaleType="center" />
 
             <include
                 android:id="@+id/inner_layout"

@@ -49,11 +49,6 @@ public class MovieService extends BaseService {
             if (cursor.getCount() > 0) {
                 while (cursor.moveToNext()) {
                     int movieId = cursor.getInt(cursor.getColumnIndex(MovieContract.COLUMN_API_ID));
-//                    byte[] img = cursor.getBlob(cursor.getColumnIndex(MovieContract.COLUMN_POSTER));
-//                    if (img == null) {
-//                        String posterPath = cursor.getString(cursor.getColumnIndex(MovieContract.COLUMN_POSTER_URL));
-//                        downloadPoster(posterPath, movieId, context);
-//                    }
                     VideoService.syncVideosData(movieId, context);
                     ReviewService.syncReviewsData(movieId, context);
                 }
@@ -62,7 +57,7 @@ public class MovieService extends BaseService {
         }
     }
 
-    public static void syncMoviesData(Context context) {
+    private static void syncMoviesData(Context context) {
         getMovies(context, POPULAR_PATH);
     }
 

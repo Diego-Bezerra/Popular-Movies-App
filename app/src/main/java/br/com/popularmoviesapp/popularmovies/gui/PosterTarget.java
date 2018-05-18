@@ -10,6 +10,7 @@ import com.squareup.picasso.Target;
 
 import java.io.ByteArrayOutputStream;
 
+import br.com.popularmoviesapp.popularmovies.R;
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieProviderUtil;
 
 public class PosterTarget implements Target {
@@ -37,6 +38,7 @@ public class PosterTarget implements Target {
                 MovieProviderUtil.updateMoviePoster(movieId, byteArray, context);
             }
         }).start();
+        mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         mImageView.setImageBitmap(bitmap);
     }
 
@@ -47,6 +49,7 @@ public class PosterTarget implements Target {
 
     @Override
     public void onPrepareLoad(Drawable placeHolderDrawable) {
-
+        mImageView.setScaleType(ImageView.ScaleType.CENTER);
+        mImageView.setImageResource(R.drawable.ic_image);
     }
 }
