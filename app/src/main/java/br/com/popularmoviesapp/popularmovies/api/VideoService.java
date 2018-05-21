@@ -12,7 +12,6 @@ import java.net.URL;
 
 import br.com.popularmoviesapp.popularmovies.data.video.VideoContract;
 import br.com.popularmoviesapp.popularmovies.data.video.VideoProviderUtil;
-import br.com.popularmoviesapp.popularmovies.util.LogUtil;
 import br.com.popularmoviesapp.popularmovies.util.NetworkUtils;
 
 public class VideoService extends BaseService {
@@ -21,27 +20,12 @@ public class VideoService extends BaseService {
     private static final String KEY_JSON = "key";
     private static final String NAME_JSON = "name";
     private static final String TYPE_JSON = "type";
-    private static int syncingMovieId = 0;
 
-
-    private static int getSyncingMovieId() {
-        return syncingMovieId;
-    }
-
-    public static void syncVideosData(int movieId, Context context) {
+    public static void syncVideosData(int movieId, int movieApiId, Context context) {
 
         try {
 
-            LogUtil.logInfo("VIDEOS: Id = " + movieId);
-            LogUtil.logInfo("VIDEOS: syncingMovieId == movieId --> " + (syncingMovieId == movieId));
-            if (syncingMovieId == movieId) return;
-            if (!NetworkUtils.isNetworkAvailable(context)) {
-                throw new IllegalStateException("No internet connection");
-            }
-
-            syncingMovieId = movieId;
-            URL url = getMoviesApiURLWithId(VIDEOS_PATH, movieId);
-
+            URL url = getMoviesApiURLWithId(VIDEOS_PATH, movieApiId);
 
             String jsonResponse = NetworkUtils.getResponseFromHttpUrl(url);
             JSONObject jsonObject = new JSONObject(jsonResponse);
@@ -56,9 +40,7 @@ public class VideoService extends BaseService {
                 }
 
                 VideoProviderUtil.delete(movieId, context);
-                LogUtil.logInfo("VIDEOS: delete all Id = " + movieId);
                 VideoProviderUtil.bulkInsert(contentValues, context);
-                LogUtil.logInfo("VIDEOS: bulkInsert Id = " + movieId + " contentValues = " + contentValues.length);
             }
 
         } catch (IOException e) {
@@ -67,8 +49,6 @@ public class VideoService extends BaseService {
             e.printStackTrace();
         } catch (IllegalStateException e) {
             e.printStackTrace();
-        } finally {
-            syncingMovieId = 0;
         }
     }
 

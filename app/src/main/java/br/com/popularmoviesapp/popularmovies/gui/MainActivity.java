@@ -14,14 +14,16 @@ import android.support.v7.widget.GridLayoutManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import br.com.popularmoviesapp.popularmovies.R;
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieProviderUtil;
 import br.com.popularmoviesapp.popularmovies.databinding.ActivityMainBinding;
 import br.com.popularmoviesapp.popularmovies.sync.PopularMoviesSyncUtils;
+import br.com.popularmoviesapp.popularmovies.util.NetworkUtils;
 
 public class MainActivity extends AppCompatActivity implements MovieListAdapter.MovieItemClickListener,
-        LoaderManager.LoaderCallbacks<Cursor> {
+        LoaderManager.LoaderCallbacks<Cursor>, PopularMoviesSyncUtils.MovieSyncDataListener {
 
     private static final String SORT_STATE = "sort_state";
     private static final int ID_MOVIES_LOADER = 10;
@@ -42,33 +44,12 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
             }
         }
 
-        getSupportLoaderManager().initLoader(ID_MOVIES_LOADER, null, this);
-        PopularMoviesSyncUtils.initialize(this);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+        if (NetworkUtils.isNetworkAvailable(this)) {
+            PopularMoviesSyncUtils.initialize(this, this);
+        } else {
+            showNoResults(true);
+            Toast.makeText(this, R.string.no_internet_connection, Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -100,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     }
 
     private void showNoResults(boolean show) {
-        if (show) {
+        if (!show) {
             mainBinding.rcMovieList.setVisibility(View.VISIBLE);
             mainBinding.tvNoResults.setVisibility(View.GONE);
         } else {
@@ -116,9 +97,10 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     }
 
     @Override
-    public void onMovieClick(int movieId) {
+    public void onMovieClick(int movieId, int movieApiId) {
         Intent intent = new Intent(this, DetailsActivity.class);
         intent.putExtra(DetailsActivity.EXTRA_MOVIE_ID, movieId);
+        intent.putExtra(DetailsActivity.EXTRA_MOVIE_API_ID, movieApiId);
         startActivity(intent);
     }
 
@@ -151,8 +133,6 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         switch (id) {
             case ID_MOVIES_LOADER:
-                mainBinding.tvNoResults.setVisibility(View.GONE);
-                mainBinding.pgProgress.setVisibility(View.VISIBLE);
                 mainBinding.rcMovieList.setAdapter(null);
                 return MovieProviderUtil.getAllMoviesCursorLoader(selectedSort, this);
             default:
@@ -162,19 +142,28 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
 
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-
-        mainBinding.pgProgress.setVisibility(View.INVISIBLE);
-
         if (data != null && data.getCount() > 0) {
-            showNoResults(true);
+            showNoResults(false);
             setupMovieList(data);
         } else {
-            showNoResults(false);
+            showNoResults(true);
         }
+        mainBinding.pgProgress.setVisibility(View.GONE);
     }
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 
+    }
+
+    @Override
+    public void onSyncStarted() {
+        mainBinding.pgProgress.setVisibility(View.VISIBLE);
+        showNoResults(false);
+    }
+
+    @Override
+    public void onSyncEnded() {
+        getSupportLoaderManager().initLoader(ID_MOVIES_LOADER, null, this);
     }
 }

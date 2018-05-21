@@ -6,9 +6,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
-import android.widget.ImageView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,24 +37,28 @@ public class MovieService extends BaseService {
     private static final String OVERVIEW_JSON = "overview";
     private static final String RELEASE_DATE_JSON = "release_date";
 
-    private static int downloadingPosterMovieId;
-
     public static void syncAllDataMovies(Context context) {
         MovieService.syncMoviesData(context);
         Cursor cursor = MovieProviderUtil.getAllMoviesCursor(MovieSortEnum.POPULAR, context);
         if (cursor != null) {
             if (cursor.getCount() > 0) {
                 while (cursor.moveToNext()) {
-                    int movieId = cursor.getInt(cursor.getColumnIndex(MovieContract.COLUMN_API_ID));
-                    VideoService.syncVideosData(movieId, context);
-                    ReviewService.syncReviewsData(movieId, context);
+                    int movieApiId = cursor.getInt(cursor.getColumnIndex(MovieContract.COLUMN_API_ID));
+                    int movieId = cursor.getInt(cursor.getColumnIndex(MovieContract._ID));
+                    byte[] img = cursor.getBlob(cursor.getColumnIndex(MovieContract.COLUMN_POSTER));
+                    if (img == null) {
+                        String imgPath = cursor.getString(cursor.getColumnIndex(MovieContract.COLUMN_POSTER_URL));
+                        downloadPoster(imgPath, movieId, context);
+                    }
+                    VideoService.syncVideosData(movieId, movieApiId, context);
+                    ReviewService.syncReviewsData(movieId, movieApiId, context);
                 }
             }
             cursor.close();
         }
     }
 
-    private static void syncMoviesData(Context context) {
+    public static void syncMoviesData(Context context) {
         getMovies(context, POPULAR_PATH);
     }
 
@@ -115,14 +116,7 @@ public class MovieService extends BaseService {
         return values;
     }
 
-    private static void downloadPoster(String urlPath, int movieId,  Context context) {
-        downloadPoster(urlPath, movieId, null, context);
-    }
-
-    public static void downloadPoster(String urlPath, int movieId, final ImageView imageView, Context context) {
-
-        if (downloadingPosterMovieId == movieId) return;
-        downloadingPosterMovieId = movieId;
+    public static void downloadPoster(String urlPath, int movieId, Context context) {
 
         InputStream in = null;
         try {
@@ -134,19 +128,9 @@ public class MovieService extends BaseService {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            downloadingPosterMovieId = 0;
         }
 
         final Bitmap bitmap = BitmapFactory.decodeStream(in);
-        if (imageView != null) {
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable() {
-                public void run() {
-                    imageView.setImageBitmap(bitmap);
-                }
-            });
-        }
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] byteArray = stream.toByteArray();

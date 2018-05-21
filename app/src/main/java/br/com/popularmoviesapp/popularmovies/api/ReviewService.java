@@ -21,19 +21,11 @@ public class ReviewService extends BaseService {
     private static final String CONTENT_JSON = "content";
     private static final String URL_JSON = "url";
 
-    private static int syncingMovieId = 0;
-
-    public static void syncReviewsData(int movieId, Context context) {
+    public static void syncReviewsData(int movieId, int movieApiId, Context context) {
 
         try {
 
-            if (syncingMovieId == movieId) return;
-            if (!NetworkUtils.isNetworkAvailable(context)) {
-                throw new IllegalStateException("No internet connection");
-            }
-
-            syncingMovieId = movieId;
-            URL url = getMoviesApiURLWithId(REVIEWS_PATH, movieId);
+            URL url = getMoviesApiURLWithId(REVIEWS_PATH, movieApiId);
 
             String jsonResponse = NetworkUtils.getResponseFromHttpUrl(url);
             JSONObject jsonObject = new JSONObject(jsonResponse);
@@ -57,8 +49,6 @@ public class ReviewService extends BaseService {
             e.printStackTrace();
         } catch (IllegalStateException e) {
             e.printStackTrace();
-        } finally {
-            syncingMovieId = 0;
         }
     }
 
@@ -69,7 +59,7 @@ public class ReviewService extends BaseService {
         ContentValues values = new ContentValues();
         values.put(ReviewContract.COLUMN_AUTHOR, jsonObj.getString(AUTHOR_JSON));
         values.put(ReviewContract.COLUMN_CONTENT, jsonObj.getString(CONTENT_JSON));
-        values.put(ReviewContract.COLUMN_URL, jsonObj.getDouble(URL_JSON));
+        values.put(ReviewContract.COLUMN_URL, jsonObj.getString(URL_JSON));
         values.put(ReviewContract.COLUMN_MOVIE, movieId);
 
         return values;

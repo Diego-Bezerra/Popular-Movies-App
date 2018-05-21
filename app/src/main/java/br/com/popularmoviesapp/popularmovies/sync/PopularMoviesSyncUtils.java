@@ -1,8 +1,9 @@
 package br.com.popularmoviesapp.popularmovies.sync;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 
 import com.firebase.jobdispatcher.Constraint;
@@ -15,6 +16,7 @@ import com.firebase.jobdispatcher.Trigger;
 
 import java.util.concurrent.TimeUnit;
 
+import br.com.popularmoviesapp.popularmovies.api.MovieService;
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieProviderUtil;
 import br.com.popularmoviesapp.popularmovies.gui.MovieSortEnum;
 
@@ -26,10 +28,21 @@ public class PopularMoviesSyncUtils {
     private static final int SYNC_FLEXTIME_SECONDS = SYNC_INTERVAL_SECONDS / 3;
 
     private static final String POPULAR_MOVIES_SYNC_TAG = "popular_movie_sync";
-    
-    synchronized public static void initialize(@NonNull final Context context) {
 
-        if(isInitialized) return;
+    public interface MovieSyncDataListener {
+        void onSyncStarted();
+
+        void onSyncEnded();
+    }
+
+    synchronized public static void initialize(@NonNull final Context context, final MovieSyncDataListener syncDataListener) {
+
+        if (syncDataListener != null) syncDataListener.onSyncStarted();
+
+        if (isInitialized) {
+            if (syncDataListener != null) syncDataListener.onSyncEnded();
+            return;
+        }
         isInitialized = true;
 
         scheduleFirebaseJobDispatcherSync(context);
@@ -39,16 +52,19 @@ public class PopularMoviesSyncUtils {
             public void run() {
                 Cursor cursor = MovieProviderUtil.getAllMoviesCursor(MovieSortEnum.POPULAR, context);
                 if (cursor == null || cursor.getCount() == 0) {
-                    startImmediateSync(context);
+                    MovieService.syncMoviesData(context);
                 }
                 if (cursor != null) cursor.close();
+                if (syncDataListener != null) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            syncDataListener.onSyncEnded();
+                        }
+                    });
+                }
             }
         }).start();
-    }
-
-    private static void startImmediateSync(@NonNull final Context context) {
-        final int JOB_ID = 1;
-        PopularMoviesSyncJobIntentService.enqueueWork(context, PopularMoviesSyncJobIntentService.class, JOB_ID, new Intent());
     }
 
     private static void scheduleFirebaseJobDispatcherSync(@NonNull final Context context) {

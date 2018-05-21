@@ -29,6 +29,8 @@ public class PopularMoviesProvider extends ContentProvider {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = MovieContract.CONTENT_AUTHORITY;
         matcher.addURI(authority, MovieContract.PATH_MOVIE, CODE_MOVIES);
+        matcher.addURI(authority, VideoContract.PATH_VIDEO, CODE_VIDEOS);
+        matcher.addURI(authority, ReviewContract.PATH_REVIEW, CODE_REVIEWS);
         matcher.addURI(authority, MovieContract.PATH_MOVIE + "/#", CODE_MOVIES_ID);
         matcher.addURI(authority, VideoContract.PATH_VIDEO + "/#", CODE_VIDEOS_WITH_MOVIE_ID);
         matcher.addURI(authority, ReviewContract.PATH_REVIEW + "/#", CODE_REVIEW_WITH_MOVIE_ID);
@@ -122,7 +124,6 @@ public class PopularMoviesProvider extends ContentProvider {
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
 
         int numRowsDeleted;
-        SQLiteDatabase db = mOpenHelper.getReadableDatabase();
         int movieId;
         switch (sUriMatcher.match(uri)) {
             case CODE_MOVIES:
