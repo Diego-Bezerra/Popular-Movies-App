@@ -29,11 +29,11 @@ public class PopularMoviesProvider extends ContentProvider {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = MovieContract.CONTENT_AUTHORITY;
         matcher.addURI(authority, MovieContract.PATH_MOVIE, CODE_MOVIES);
-        matcher.addURI(authority, VideoContract.PATH_VIDEO, CODE_VIDEOS);
-        matcher.addURI(authority, ReviewContract.PATH_REVIEW, CODE_REVIEWS);
         matcher.addURI(authority, MovieContract.PATH_MOVIE + "/#", CODE_MOVIES_ID);
+        matcher.addURI(authority, VideoContract.PATH_VIDEO, CODE_VIDEOS);
         matcher.addURI(authority, VideoContract.PATH_VIDEO + "/#", CODE_VIDEOS_WITH_MOVIE_ID);
         matcher.addURI(authority, ReviewContract.PATH_REVIEW + "/#", CODE_REVIEW_WITH_MOVIE_ID);
+        matcher.addURI(authority, ReviewContract.PATH_REVIEW, CODE_REVIEWS);
 
         return matcher;
     }
@@ -201,16 +201,26 @@ public class PopularMoviesProvider extends ContentProvider {
 
     @Override
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
+        int rowsInserted = 0;
         switch (sUriMatcher.match(uri)) {
             case CODE_MOVIES:
-                return bulkInsert(MovieContract.TABLE_NAME, values, uri);
+                rowsInserted = bulkInsert(MovieContract.TABLE_NAME, values, uri);
+                break;
             case CODE_VIDEOS:
-                return bulkInsert(VideoContract.TABLE_NAME, values, uri);
+                rowsInserted = bulkInsert(VideoContract.TABLE_NAME, values, uri);
+                break;
             case CODE_REVIEWS:
-                return bulkInsert(ReviewContract.TABLE_NAME, values, uri);
+                rowsInserted = bulkInsert(ReviewContract.TABLE_NAME, values, uri);
+                break;
             default:
                 return super.bulkInsert(uri, values);
         }
+
+        if (rowsInserted > 0 && getContext() != null) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        return rowsInserted;
     }
 
     private int bulkInsert(String tableName, ContentValues[] values, Uri uri) {

@@ -7,6 +7,8 @@ import br.com.popularmoviesapp.popularmovies.data.BaseContract;
 public class MovieContract extends BaseContract {
 
     public static final String PATH_MOVIE = "movie";
+    public static final String PATH_MOVIE_POSTER = PATH_MOVIE + "/poster";
+    public static final String PATH_MOVIE_FAVORITE = PATH_MOVIE + "/favorite";
     public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIE).build();
 
     public static final String TABLE_NAME = "movie";

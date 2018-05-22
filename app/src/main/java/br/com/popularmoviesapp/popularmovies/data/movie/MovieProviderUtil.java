@@ -4,28 +4,34 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
+import br.com.popularmoviesapp.popularmovies.api.MovieService;
 import br.com.popularmoviesapp.popularmovies.gui.MovieSortEnum;
 
 public class MovieProviderUtil {
 
-    public static Loader<Cursor> getAllMoviesCursorLoader(MovieSortEnum sortEnum, Context context) {
-        String sortColumn = getSortColumn(sortEnum);
-        String selection = null;
-        String[] selectionArgs = null;
-        if (sortEnum == MovieSortEnum.FAVORITE) {
-            selection = MovieContract.COLUMN_FAVORITE + "=?";
-            selectionArgs = new String[]{"1"};
-        }
+    private static boolean initialized;
 
-        return new CursorLoader(context
-                , MovieContract.CONTENT_URI
-                , null
-                , selection
-                , selectionArgs
-                , sortColumn + " DESC");
+    public static AsyncTaskLoader<Cursor> getAllMoviesAsyncTaskLoader(@NonNull final MovieSortEnum sortEnum, @NonNull final Context context) {
+
+        return new AsyncTaskLoader<Cursor>(context) {
+            @Nullable
+            @Override
+            public Cursor loadInBackground() {
+                Cursor cursor = getAllMoviesCursor(sortEnum, context);
+                if (cursor == null || cursor.getCount() == 0) {
+                    MovieService.syncMoviesData(context);
+                    return getAllMoviesCursor(sortEnum, context);
+                }
+
+                return cursor;
+            }
+        };
     }
 
     public static Cursor getAllMoviesCursor(MovieSortEnum sortEnum, Context context) {
@@ -83,7 +89,18 @@ public class MovieProviderUtil {
         return context.getContentResolver()
                 .update(uri
                         , values
-                        ,null
+                        , null
+                        , null);
+    }
+
+    public static int updateFavorite(boolean isFavorite, int movieId, Context context) {
+        Uri uri = MovieContract.CONTENT_URI.buildUpon().appendPath(movieId + "").build();
+        ContentValues values = new ContentValues();
+        values.put(MovieContract.COLUMN_FAVORITE, isFavorite);
+        return context.getContentResolver()
+                .update(uri
+                        , values
+                        , null
                         , null);
     }
 }

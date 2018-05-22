@@ -1,9 +1,6 @@
 package br.com.popularmoviesapp.popularmovies.sync;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 
 import com.firebase.jobdispatcher.Constraint;
@@ -16,10 +13,6 @@ import com.firebase.jobdispatcher.Trigger;
 
 import java.util.concurrent.TimeUnit;
 
-import br.com.popularmoviesapp.popularmovies.api.MovieService;
-import br.com.popularmoviesapp.popularmovies.data.movie.MovieProviderUtil;
-import br.com.popularmoviesapp.popularmovies.gui.MovieSortEnum;
-
 public class PopularMoviesSyncUtils {
 
     private static boolean isInitialized;
@@ -29,42 +22,11 @@ public class PopularMoviesSyncUtils {
 
     private static final String POPULAR_MOVIES_SYNC_TAG = "popular_movie_sync";
 
-    public interface MovieSyncDataListener {
-        void onSyncStarted();
-
-        void onSyncEnded();
-    }
-
-    synchronized public static void initialize(@NonNull final Context context, final MovieSyncDataListener syncDataListener) {
-
-        if (syncDataListener != null) syncDataListener.onSyncStarted();
-
-        if (isInitialized) {
-            if (syncDataListener != null) syncDataListener.onSyncEnded();
-            return;
+    synchronized public static void initialize(@NonNull final Context context) {
+        if (!isInitialized) {
+            isInitialized = true;
+            scheduleFirebaseJobDispatcherSync(context);
         }
-        isInitialized = true;
-
-        scheduleFirebaseJobDispatcherSync(context);
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Cursor cursor = MovieProviderUtil.getAllMoviesCursor(MovieSortEnum.POPULAR, context);
-                if (cursor == null || cursor.getCount() == 0) {
-                    MovieService.syncMoviesData(context);
-                }
-                if (cursor != null) cursor.close();
-                if (syncDataListener != null) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            syncDataListener.onSyncEnded();
-                        }
-                    });
-                }
-            }
-        }).start();
     }
 
     private static void scheduleFirebaseJobDispatcherSync(@NonNull final Context context) {

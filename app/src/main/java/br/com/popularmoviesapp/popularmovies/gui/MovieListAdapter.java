@@ -24,7 +24,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
     private MovieItemClickListener mMovieItemClickListener;
 
     public interface MovieItemClickListener {
-        void onMovieClick(int movieId);
+        void onMovieClick(int movieId, int movieApiId);
     }
 
     MovieListAdapter(Cursor movies, MovieItemClickListener movieItemClickListener) {
@@ -75,7 +75,8 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
         public void onClick(View v) {
             mMoviesCursor.moveToPosition(this.getLayoutPosition());
             int movieId = mMoviesCursor.getInt(mMoviesCursor.getColumnIndex(MovieContract._ID));
-            mMovieItemClickListener.onMovieClick(movieId);
+            int movieApiId = mMoviesCursor.getInt(mMoviesCursor.getColumnIndex(MovieContract.COLUMN_API_ID));
+            mMovieItemClickListener.onMovieClick(movieId, movieApiId);
         }
 
         void bind(Cursor cursor) {

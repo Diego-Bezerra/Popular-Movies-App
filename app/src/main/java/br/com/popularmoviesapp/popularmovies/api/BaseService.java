@@ -12,7 +12,7 @@ public class BaseService {
     private static final String MOVIE_PATH = "movie";
     private static final String BASE_URL = "http://api.themoviedb.org/3";
     protected static final String BASE_IMAGE_URL = "http://image.tmdb.org/t/p/";
-    protected static final String IMAGE_SIZE_185_PATH = "w185";
+    protected static final String IMAGE_SIZE_185_PATH = "w300";
     private static final String API_KEY_QUERY = "api_key";
     private static final String API_KEY = BuildConfig.API_KEY;
     protected static final String RESULTS_JSON = "results";

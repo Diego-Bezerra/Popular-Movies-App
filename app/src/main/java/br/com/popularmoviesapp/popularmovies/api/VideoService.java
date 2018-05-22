@@ -27,7 +27,7 @@ public class VideoService extends BaseService {
 
             URL url = getMoviesApiURLWithId(VIDEOS_PATH, movieApiId);
 
-            String jsonResponse = NetworkUtils.getResponseFromHttpUrl(url);
+            String jsonResponse = NetworkUtils.getResponseFromHttpUrl(url, context);
             JSONObject jsonObject = new JSONObject(jsonResponse);
             JSONArray results = jsonObject.getJSONArray(RESULTS_JSON);
 

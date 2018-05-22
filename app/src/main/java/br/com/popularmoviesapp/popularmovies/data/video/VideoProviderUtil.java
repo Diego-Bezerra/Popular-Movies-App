@@ -4,16 +4,39 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.Nullable;
+import android.support.v4.content.AsyncTaskLoader;
+
+import br.com.popularmoviesapp.popularmovies.api.VideoService;
+import br.com.popularmoviesapp.popularmovies.util.NetworkUtils;
 
 public class VideoProviderUtil {
 
-    public static Cursor getAllVideos(int movieId, Context context) {
+    public static AsyncTaskLoader<Cursor> getVideosAsyncTaskLoaderByMovieId(final int movieId, final int movieApiId, final Context context) {
+        return new AsyncTaskLoader<Cursor>(context) {
+            @Nullable
+            @Override
+            public Cursor loadInBackground() {
+                Cursor cursor = VideoProviderUtil.getAllVideosCursor(movieId, context);
+                if (cursor == null || cursor.getCount() == 0) {
+                    if (NetworkUtils.isNetworkAvailable(context)) {
+                        VideoService.syncVideosData(movieId, movieApiId, context);
+                        return VideoProviderUtil.getAllVideosCursor(movieId, context);
+                    }
+                }
+
+                return cursor;
+            }
+        };
+    }
+
+    public static Cursor getAllVideosCursor(int movieId, Context context) {
         Uri uri = createUriWithMovieId(movieId);
         return context.getContentResolver()
                 .query(uri
                         , null
-                        ,null
-                        , null
+                        , VideoContract.COLUMN_MOVIE + "=?"
+                        , new String[]{movieId + ""}
                         , VideoContract.COLUMN_NAME + " ASC");
     }
 

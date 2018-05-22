@@ -14,10 +14,7 @@
 
         <ProgressBar
             android:id="@+id/pg_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone" />
+            style="@style/ProgressBar" />
 
         <TextView
             android:id="@+id/tv_no_results"

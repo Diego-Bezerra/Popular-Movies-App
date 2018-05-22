@@ -14,16 +14,14 @@ import android.support.v7.widget.GridLayoutManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import br.com.popularmoviesapp.popularmovies.R;
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieProviderUtil;
 import br.com.popularmoviesapp.popularmovies.databinding.ActivityMainBinding;
-import br.com.popularmoviesapp.popularmovies.sync.PopularMoviesSyncUtils;
-import br.com.popularmoviesapp.popularmovies.util.NetworkUtils;
+import br.com.popularmoviesapp.popularmovies.gui.details.DetailsActivity;
 
 public class MainActivity extends AppCompatActivity implements MovieListAdapter.MovieItemClickListener,
-        LoaderManager.LoaderCallbacks<Cursor>, PopularMoviesSyncUtils.MovieSyncDataListener {
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String SORT_STATE = "sort_state";
     private static final int ID_MOVIES_LOADER = 10;
@@ -44,12 +42,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
             }
         }
 
-        if (NetworkUtils.isNetworkAvailable(this)) {
-            PopularMoviesSyncUtils.initialize(this, this);
-        } else {
-            showNoResults(true);
-            Toast.makeText(this, R.string.no_internet_connection, Toast.LENGTH_LONG).show();
-        }
+        getSupportLoaderManager().initLoader(ID_MOVIES_LOADER, null, this).forceLoad();
     }
 
     @Override
@@ -74,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         }
 
         if (oldSelected != selectedSort) {
-            getSupportLoaderManager().restartLoader(ID_MOVIES_LOADER, null, this);
+            getSupportLoaderManager().restartLoader(ID_MOVIES_LOADER, null, this).forceLoad();
         }
 
         return super.onOptionsItemSelected(item);
@@ -133,8 +126,10 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         switch (id) {
             case ID_MOVIES_LOADER:
+                mainBinding.pgProgress.setVisibility(View.VISIBLE);
+                showNoResults(false);
                 mainBinding.rcMovieList.setAdapter(null);
-                return MovieProviderUtil.getAllMoviesCursorLoader(selectedSort, this);
+                return MovieProviderUtil.getAllMoviesAsyncTaskLoader(selectedSort, this);
             default:
                 throw new RuntimeException("Loader Not Implemented: " + id);
         }
@@ -154,16 +149,5 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 
-    }
-
-    @Override
-    public void onSyncStarted() {
-        mainBinding.pgProgress.setVisibility(View.VISIBLE);
-        showNoResults(false);
-    }
-
-    @Override
-    public void onSyncEnded() {
-        getSupportLoaderManager().initLoader(ID_MOVIES_LOADER, null, this);
     }
 }

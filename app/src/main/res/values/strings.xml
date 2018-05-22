@@ -2,7 +2,6 @@
     <string name="app_name">Popular Movies App</string>
     <string name="popular">Popular</string>
     <string name="top_rated">Top rated</string>
-    <string name="no_internet">No internet connection :(</string>
     <string name="no_results">No movies to show :(</string>
     <string name="movie_thumb_description">Movie thumb</string>
 
@@ -15,4 +14,6 @@
     <string name="provider_authority">br.com.popularmovies</string>
     <string name="json_format_pattern">yyyy-MM-dd</string>
     <string name="no_internet_connection">No internet connection!</string>
+    <string name="videos">Videos</string>
+    <string name="reviews">Reviews</string>
 </resources>

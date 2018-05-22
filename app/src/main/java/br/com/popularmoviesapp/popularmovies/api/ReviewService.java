@@ -27,7 +27,8 @@ public class ReviewService extends BaseService {
 
             URL url = getMoviesApiURLWithId(REVIEWS_PATH, movieApiId);
 
-            String jsonResponse = NetworkUtils.getResponseFromHttpUrl(url);
+            String jsonResponse = NetworkUtils.getResponseFromHttpUrl(url, context);
+            if (jsonResponse == null) return;
             JSONObject jsonObject = new JSONObject(jsonResponse);
             JSONArray results = jsonObject.getJSONArray(RESULTS_JSON);
 

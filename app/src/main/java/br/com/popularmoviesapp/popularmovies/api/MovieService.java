@@ -66,13 +66,10 @@ public class MovieService extends BaseService {
 
         try {
 
-            if (!NetworkUtils.isNetworkAvailable(context)) {
-                throw new IllegalStateException("No internet connection");
-            }
-
             URL url = getMoviesApiURL(path);
 
-            String jsonResponse = NetworkUtils.getResponseFromHttpUrl(url);
+            String jsonResponse = NetworkUtils.getResponseFromHttpUrl(url, context);
+            if (jsonResponse == null) return;
             JSONObject jsonObject = new JSONObject(jsonResponse);
             JSONArray results = jsonObject.getJSONArray(RESULTS_JSON);
 
