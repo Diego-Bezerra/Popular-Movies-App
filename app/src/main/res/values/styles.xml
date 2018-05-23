@@ -9,17 +9,7 @@
         <item name="android:textColorPrimary">@color/colorPrimaryText</item>
         <item name="android:textColorSecondary">@color/colorSecondaryText</item>
         <item name="android:divider">@color/colorDivider</item>
-        <item name="android:windowBackground">@color/colorLightPrimary</item>
-    </style>
-
-    <style name="AppTheme.NoActionbar" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textColorPrimary">@color/colorPrimaryText</item>
-        <item name="android:textColorSecondary">@color/colorSecondaryText</item>
-        <item name="android:divider">@color/colorDivider</item>
-        <item name="android:windowBackground">@color/colorLightPrimary</item>
+        <item name="android:windowBackground">@color/colorPrimary</item>
     </style>
 
     <style name="ProgressBar" parent="Base.Widget.AppCompat.ProgressBar">
@@ -27,6 +17,16 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:visibility">gone</item>
         <item name="android:layout_gravity">center</item>
+    </style>
+
+    <style name="NoResultsTextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:text">@string/no_results</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:visibility">gone</item>
     </style>
 
 </resources>

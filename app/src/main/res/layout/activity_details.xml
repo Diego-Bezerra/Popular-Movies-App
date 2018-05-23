@@ -15,7 +15,7 @@
                 android:id="@+id/viewA"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="0.6"
+                android:layout_weight="0.8"
                 android:background="@color/colorPrimary">
 
                 <ImageView
@@ -29,34 +29,28 @@
 
             </FrameLayout>
 
-            <ScrollView
+            <LinearLayout
                 android:id="@+id/viewB"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.4">
+                android:layout_height="wrap_content"
+                android:layout_weight="0.4"
+                android:orientation="vertical">
 
-                <LinearLayout
+                <android.support.design.widget.TabLayout
+                    android:id="@+id/tabs"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/default_half_padding">
+                    android:background="@color/colorPrimary"
+                    android:minHeight="?attr/actionBarSize" />
 
-                    <include
-                        android:id="@+id/inner_layout"
-                        layout="@layout/activity_details_common" />
-                </LinearLayout>
-            </ScrollView>
+                <android.support.v4.view.ViewPager
+                    android:id="@+id/pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </LinearLayout>
 
         </LinearLayout>
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:src="@drawable/ic_unfav"
-            app:layout_anchor="@id/viewA"
-            app:layout_anchorGravity="bottom|right|end" />
 
         <ProgressBar
             android:id="@+id/pg_progress"
@@ -64,5 +58,6 @@
             app:layout_anchorGravity="center" />
 
     </android.support.design.widget.CoordinatorLayout>
+
 
 </layout>

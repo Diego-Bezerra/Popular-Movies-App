@@ -16,7 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <activity android:name="br.com.popularmoviesapp.popularmovies.gui.MainActivity">
+        <activity android:name="br.com.popularmoviesapp.popularmovies.gui.MainActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -24,25 +25,28 @@
         </activity>
         <activity
             android:name="br.com.popularmoviesapp.popularmovies.gui.details.DetailsActivity"
-            android:theme="@style/AppTheme.NoActionbar"
-            android:launchMode="singleInstance">
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme"
+            android:parentActivityName=".gui.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".gui.MainActivity" />
         </activity>
+
         <provider
             android:name="br.com.popularmoviesapp.popularmovies.data.PopularMoviesProvider"
             android:authorities="br.com.popularmoviesapp.popularmovies.data"
             android:exported="false" />
+
         <service
             android:name=".sync.PopularMoviesSyncJobIntentService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="false" />
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
         <service
             android:name=".sync.PopularMoviesJobService"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
+                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE" />
             </intent-filter>
         </service>
     </application>

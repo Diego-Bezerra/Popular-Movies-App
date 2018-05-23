@@ -18,13 +18,7 @@
 
         <TextView
             android:id="@+id/tv_no_results"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/no_results"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:visibility="gone" />
+            style="@style/NoResultsTextView" />
 
     </FrameLayout>
 </layout>
