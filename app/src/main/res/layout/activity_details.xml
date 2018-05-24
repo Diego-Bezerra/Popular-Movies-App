@@ -24,7 +24,7 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:contentDescription="@string/movie_thumb_description"
-                    android:scaleType="centerCrop"
+                    android:scaleType="centerInside"
                     android:src="@drawable/ic_image" />
 
             </FrameLayout>
@@ -41,6 +41,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/colorPrimary"
+                    app:tabGravity="fill"
                     android:minHeight="?attr/actionBarSize" />
 
                 <android.support.v4.view.ViewPager
@@ -51,11 +52,6 @@
             </LinearLayout>
 
         </LinearLayout>
-
-        <ProgressBar
-            android:id="@+id/pg_progress"
-            style="@style/ProgressBar"
-            app:layout_anchorGravity="center" />
 
     </android.support.design.widget.CoordinatorLayout>
 

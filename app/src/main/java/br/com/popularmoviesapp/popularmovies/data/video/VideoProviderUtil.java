@@ -14,6 +14,13 @@ public class VideoProviderUtil {
 
     public static AsyncTaskLoader<Cursor> getVideosAsyncTaskLoaderByMovieId(final int movieId, final int movieApiId, final Context context) {
         return new AsyncTaskLoader<Cursor>(context) {
+
+            @Override
+            protected void onStartLoading() {
+                super.onStartLoading();
+                forceLoad();
+            }
+
             @Nullable
             @Override
             public Cursor loadInBackground() {
@@ -38,6 +45,10 @@ public class VideoProviderUtil {
                         , VideoContract.COLUMN_MOVIE + "=?"
                         , new String[]{movieId + ""}
                         , VideoContract.COLUMN_NAME + " ASC");
+    }
+
+    public static int deleteAll(Context context) {
+        return context.getContentResolver().delete(VideoContract.CONTENT_URI, null, null);
     }
 
     public static int delete(int movieId, Context context) {

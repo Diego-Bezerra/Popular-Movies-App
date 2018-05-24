@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
@@ -26,6 +25,7 @@ public class VideosFragment extends Fragment implements LoaderManager.LoaderCall
 
     private int movieId;
     private int movieApiId;
+    private VideoAdapter adapter;
     private FragmentVideosBinding mBinding;
 
     public static VideosFragment newInstance(int movieId, int movieApiId) {
@@ -52,8 +52,15 @@ public class VideosFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_videos, container, false);
+
+        mBinding.videosList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mBinding.videosList.setHasFixedSize(true);
+        adapter = new VideoAdapter();
+        mBinding.videosList.setAdapter(adapter);
+
         if (getActivity() != null) {
-            getActivity().getSupportLoaderManager().restartLoader(LOADER_VIDEO_DETAIL_ID, null, this);
+            LoaderManager lm = getLoaderManager();
+            lm.initLoader(LOADER_VIDEO_DETAIL_ID, null, this);
         }
         return mBinding.getRoot();
     }
@@ -63,9 +70,8 @@ public class VideosFragment extends Fragment implements LoaderManager.LoaderCall
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         switch (id) {
             case LOADER_VIDEO_DETAIL_ID:
-                AsyncTaskLoader<Cursor> loader = VideoProviderUtil.getVideosAsyncTaskLoaderByMovieId(movieId, movieApiId, getActivity());
-                loader.for;
-                return loader;
+                mBinding.pgProgress.setVisibility(View.VISIBLE);
+                return VideoProviderUtil.getVideosAsyncTaskLoaderByMovieId(movieId, movieApiId, getActivity());
             default:
                 throw new RuntimeException("Loader Not Implemented: " + id);
         }
@@ -74,6 +80,7 @@ public class VideosFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         setupRecyclerView(data);
+        mBinding.pgProgress.setVisibility(View.GONE);
     }
 
     @Override
@@ -83,11 +90,9 @@ public class VideosFragment extends Fragment implements LoaderManager.LoaderCall
 
     private void setupRecyclerView(Cursor data) {
         if (data != null) {
+            adapter.swipeData(data);
             mBinding.videosList.setVisibility(View.VISIBLE);
             mBinding.tvNoResults.setVisibility(View.GONE);
-            mBinding.videosList.setLayoutManager(new LinearLayoutManager(getActivity()));
-            mBinding.videosList.setHasFixedSize(true);
-            mBinding.videosList.setAdapter(new VideoAdapter(data));
         } else {
             mBinding.videosList.setVisibility(View.GONE);
             mBinding.tvNoResults.setVisibility(View.VISIBLE);

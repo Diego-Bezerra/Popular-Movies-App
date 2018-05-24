@@ -12,6 +12,7 @@ import java.net.URL;
 
 import br.com.popularmoviesapp.popularmovies.data.video.VideoContract;
 import br.com.popularmoviesapp.popularmovies.data.video.VideoProviderUtil;
+import br.com.popularmoviesapp.popularmovies.util.LogUtil;
 import br.com.popularmoviesapp.popularmovies.util.NetworkUtils;
 
 public class VideoService extends BaseService {
@@ -24,6 +25,8 @@ public class VideoService extends BaseService {
     public static void syncVideosData(int movieId, int movieApiId, Context context) {
 
         try {
+
+            LogUtil.logInfo("syncVideosData");
 
             URL url = getMoviesApiURLWithId(VIDEOS_PATH, movieApiId);
 
@@ -39,7 +42,6 @@ public class VideoService extends BaseService {
                     contentValues[i] = getContentValuesFromJson(movieId, json);
                 }
 
-                VideoProviderUtil.delete(movieId, context);
                 VideoProviderUtil.bulkInsert(contentValues, context);
             }
 

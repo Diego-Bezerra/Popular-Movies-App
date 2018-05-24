@@ -40,7 +40,6 @@ public class ReviewService extends BaseService {
                     contentValues[i] = getContentValuesFromJson(movieId, json);
                 }
 
-                ReviewProviderUtil.delete(movieId, context);
                 ReviewProviderUtil.bulkInsert(contentValues, context);
             }
 

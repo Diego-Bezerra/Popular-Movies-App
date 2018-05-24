@@ -18,4 +18,6 @@
     <string name="videos">Videos</string>
     <string name="reviews">Reviews</string>
     <string name="synopsis">Synopsis</string>
+    <string name="no_reviews_were_found">No reviews were found :(</string>
+    <string name="no_videos_were_found">No videos were found :(</string>
 </resources>

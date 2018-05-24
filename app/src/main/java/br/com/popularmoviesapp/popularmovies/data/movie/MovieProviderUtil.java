@@ -15,11 +15,16 @@ import br.com.popularmoviesapp.popularmovies.gui.MovieSortEnum;
 
 public class MovieProviderUtil {
 
-    private static boolean initialized;
-
     public static AsyncTaskLoader<Cursor> getAllMoviesAsyncTaskLoader(@NonNull final MovieSortEnum sortEnum, @NonNull final Context context) {
 
         return new AsyncTaskLoader<Cursor>(context) {
+
+            @Override
+            protected void onStartLoading() {
+                super.onStartLoading();
+                forceLoad();
+            }
+
             @Nullable
             @Override
             public Cursor loadInBackground() {

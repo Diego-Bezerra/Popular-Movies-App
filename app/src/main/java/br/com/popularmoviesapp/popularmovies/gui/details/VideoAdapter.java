@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +24,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
         this.mCursor = data;
     }
 
+    VideoAdapter() {
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -35,7 +39,13 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         mCursor.moveToPosition(position);
         holder.infoContainer.setOnClickListener(this);
+        holder.btnShare.setOnClickListener(this);
         holder.bind(mCursor);
+    }
+
+    public void swipeData(Cursor data) {
+        mCursor = data;
+        this.notifyDataSetChanged();
     }
 
     @Override
@@ -43,18 +53,21 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
         return mCursor != null ? mCursor.getCount() : 0;
     }
 
-    public void swipeCursor(Cursor mCursor) {
-        this.mCursor = mCursor;
-        this.notifyDataSetChanged();
-    }
-
     @Override
     public void onClick(View v) {
         String key = mCursor.getString(mCursor.getColumnIndex(VideoContract.COLUMN_KEY));
-        watchYoutubeVideo(v.getContext(), key);
+        switch (v.getId()) {
+            case R.id.info_container:
+                watchYoutubeVideo(v.getContext(), key);
+                break;
+            case R.id.btn_share:
+                String name = mCursor.getString(mCursor.getColumnIndex(VideoContract.COLUMN_NAME));
+                shareVideo(v.getContext(), key, name);
+                break;
+        }
     }
 
-    public static void watchYoutubeVideo(Context context, String id) {
+    private void watchYoutubeVideo(Context context, String id) {
         Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + id));
         Intent webIntent = new Intent(Intent.ACTION_VIEW,
                 Uri.parse("http://www.youtube.com/watch?v=" + id));
@@ -65,17 +78,28 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
         }
     }
 
+    private void shareVideo(Context context, String id, String name) {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT,
+                name + ": http://www.youtube.com/watch?v=" + id);
+        sendIntent.setType("text/plain");
+        context.startActivity(sendIntent);
+    }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         private ViewGroup infoContainer;
         private TextView name;
         private TextView type;
+        private AppCompatImageButton btnShare;
 
         ViewHolder(View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.name);
             type = itemView.findViewById(R.id.type);
             infoContainer = itemView.findViewById(R.id.info_container);
+            btnShare = itemView.findViewById(R.id.btn_share);
         }
 
         void bind(Cursor cursor) {

@@ -196,6 +196,10 @@ public class PopularMoviesProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknow uri: " + uri);
         }
 
+        if (updatedRows > 0 && getContext() != null) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
         return updatedRows;
     }
 

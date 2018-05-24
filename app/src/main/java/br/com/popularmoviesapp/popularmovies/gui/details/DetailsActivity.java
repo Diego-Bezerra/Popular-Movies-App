@@ -15,7 +15,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
+import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
@@ -54,7 +54,6 @@ public class DetailsActivity extends AppCompatActivity implements
             movieId = getIntent().getIntExtra(EXTRA_MOVIE_ID, 0);
             movieApiId = getIntent().getIntExtra(EXTRA_MOVIE_API_ID, 0);
             if (movieId > 0) {
-                mBinding.pgProgress.setVisibility(View.VISIBLE);
                 getSupportLoaderManager().initLoader(LOADER_MOVIE_ID, null, this);
             }
         }
@@ -86,7 +85,7 @@ public class DetailsActivity extends AppCompatActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_detail_menu, menu);
         favoriteMenuItem = menu.findItem(R.id.favorite);
-        favoriteMenuItem.setEnabled(true);
+        setFavoriteIcon(isFavorite, favoriteMenuItem);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -124,10 +123,10 @@ public class DetailsActivity extends AppCompatActivity implements
 
         isFavorite = data.getInt(data.getColumnIndex(MovieContract.COLUMN_FAVORITE)) > 0;
         if (favoriteMenuItem != null) {
-            favoriteMenuItem.setEnabled(true);
             setFavoriteIcon(isFavorite, favoriteMenuItem);
         }
 
+        mBinding.imgMovieThumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
         byte[] img = data.getBlob(data.getColumnIndex(MovieContract.COLUMN_POSTER));
         if (img == null) {
             String posterPath = data.getString(data.getColumnIndex(MovieContract.COLUMN_POSTER_URL));
@@ -143,7 +142,6 @@ public class DetailsActivity extends AppCompatActivity implements
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         switch (id) {
             case LOADER_MOVIE_ID:
-                mBinding.pgProgress.setVisibility(View.VISIBLE);
                 return MovieProviderUtil.getMovieById(movieId, this);
             default:
                 throw new RuntimeException("Loader Not Implemented: " + id);
@@ -152,7 +150,6 @@ public class DetailsActivity extends AppCompatActivity implements
 
     @Override
     public void onLoadFinished(@NonNull Loader loader, Cursor data) {
-        mBinding.pgProgress.setVisibility(View.GONE);
         bindMovie(data);
     }
 
@@ -161,7 +158,7 @@ public class DetailsActivity extends AppCompatActivity implements
 
     }
 
-    class ViewPagerAdapter extends FragmentPagerAdapter {
+    static class ViewPagerAdapter extends FragmentPagerAdapter {
 
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
@@ -180,7 +177,7 @@ public class DetailsActivity extends AppCompatActivity implements
             return mFragmentList.size();
         }
 
-        public void addFragment(Fragment fragment, String title) {
+        void addFragment(Fragment fragment, String title) {
             mFragmentList.add(fragment);
             mFragmentTitleList.add(title);
         }

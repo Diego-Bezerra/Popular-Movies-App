@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="500dp"
@@ -11,15 +12,16 @@
             android:id="@+id/videos_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:listitem="@layout/list_item_video"/>
+            tools:listitem="@layout/list_item_video" />
+
+        <TextView
+            android:id="@+id/tv_no_results"
+            style="@style/NoResultsTextView"
+            android:text="@string/no_videos_were_found" />
 
         <ProgressBar
             android:id="@+id/pg_progress"
             style="@style/ProgressBar" />
-
-        <TextView
-            android:id="@+id/tv_no_results"
-            style="@style/NoResultsTextView" />
 
     </FrameLayout>
 </layout>

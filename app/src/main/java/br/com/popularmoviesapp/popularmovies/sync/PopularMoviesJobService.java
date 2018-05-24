@@ -9,7 +9,6 @@ import com.firebase.jobdispatcher.JobService;
 import java.lang.ref.WeakReference;
 
 import br.com.popularmoviesapp.popularmovies.api.MovieService;
-import br.com.popularmoviesapp.popularmovies.util.LogUtil;
 
 public class PopularMoviesJobService extends JobService {
 
@@ -41,7 +40,6 @@ public class PopularMoviesJobService extends JobService {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            LogUtil.logInfo("--------JobService--------");
             MovieService.syncAllDataMovies(weakContext.get());
             return null;
         }

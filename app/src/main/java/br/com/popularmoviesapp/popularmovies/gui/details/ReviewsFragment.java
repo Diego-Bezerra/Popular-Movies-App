@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
 
     private int movieId;
     private int movieApiId;
+    private ReviewAdapter adapter;
     private FragmentReviewsBinding mBinding;
 
     public static ReviewsFragment newInstance(int movieId, int movieApiId) {
@@ -39,6 +41,7 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Bundle bundle = getArguments();
         if (getActivity() != null && bundle != null && bundle.containsKey(EXTRA_MOVIE_ID)) {
             movieId = bundle.getInt(EXTRA_MOVIE_ID);
@@ -46,12 +49,30 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
         }
     }
 
+    private void setupList(Cursor data) {
+        if (data != null && data.getCount() > 0) {
+            adapter.swipeData(data);
+            mBinding.tvNoResults.setVisibility(View.GONE);
+            mBinding.reviewsList.setVisibility(View.VISIBLE);
+        } else {
+            mBinding.tvNoResults.setVisibility(View.VISIBLE);
+            mBinding.reviewsList.setVisibility(View.GONE);
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_reviews, container, false);
+
+        mBinding.reviewsList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mBinding.reviewsList.setHasFixedSize(true);
+        adapter = new ReviewAdapter();
+        mBinding.reviewsList.setAdapter(adapter);
+
         if (getActivity() != null) {
-            getActivity().getSupportLoaderManager().initLoader(LOADER_REVIEW_DETAIL_ID, null, this).forceLoad();
+            LoaderManager lm = getLoaderManager();
+            lm.initLoader(LOADER_REVIEW_DETAIL_ID, null, this);
         }
         return mBinding.getRoot();
     }
@@ -61,6 +82,7 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         switch (id) {
             case LOADER_REVIEW_DETAIL_ID:
+                mBinding.pgProgress.setVisibility(View.VISIBLE);
                 return ReviewProviderUtil.getReviewsAsyncTaskLoaderByMovieId(movieId, movieApiId, getActivity());
             default:
                 throw new RuntimeException("Loader Not Implemented: " + id);
@@ -69,7 +91,8 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-
+        mBinding.pgProgress.setVisibility(View.GONE);
+        setupList(data);
     }
 
     @Override

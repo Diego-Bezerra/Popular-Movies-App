@@ -54,7 +54,8 @@ public class SynopsisFragment extends Fragment implements LoaderManager.LoaderCa
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_synopsis, container, false);
         if (getActivity() != null) {
-            getActivity().getSupportLoaderManager().initLoader(LOADER_MOVIE_ID, null, this);
+            LoaderManager lm = getLoaderManager();
+            lm.initLoader(LOADER_MOVIE_ID, null, this);
         }
         return mBinding.getRoot();
     }

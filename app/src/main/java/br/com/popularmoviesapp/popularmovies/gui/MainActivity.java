@@ -19,6 +19,7 @@ import br.com.popularmoviesapp.popularmovies.R;
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieProviderUtil;
 import br.com.popularmoviesapp.popularmovies.databinding.ActivityMainBinding;
 import br.com.popularmoviesapp.popularmovies.gui.details.DetailsActivity;
+import br.com.popularmoviesapp.popularmovies.sync.PopularMoviesSyncUtils;
 
 public class MainActivity extends AppCompatActivity implements MovieListAdapter.MovieItemClickListener,
         LoaderManager.LoaderCallbacks<Cursor> {
@@ -34,6 +35,21 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        PopularMoviesSyncUtils.initialize(this);
+
+        final int SW_TABLET = 600;
+
+        Configuration config = getResources().getConfiguration();
+        int spanCount = 2;
+        if (config.smallestScreenWidthDp >= SW_TABLET || getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            spanCount = 3;
+        }
+
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, spanCount);
+        mainBinding.rcMovieList.setHasFixedSize(true);
+        mainBinding.rcMovieList.setLayoutManager(gridLayoutManager);
+        mAdapter = new MovieListAdapter(this);
+        mainBinding.rcMovieList.setAdapter(mAdapter);
 
         selectedSort = MovieSortEnum.POPULAR;
         if (savedInstanceState != null) {
@@ -41,8 +57,17 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
                 selectedSort = (MovieSortEnum) savedInstanceState.getSerializable(SORT_STATE);
             }
         }
+    }
 
-        getSupportLoaderManager().initLoader(ID_MOVIES_LOADER, null, this).forceLoad();
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getSupportLoaderManager().initLoader(ID_MOVIES_LOADER, null, this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override
@@ -97,38 +122,12 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
         startActivity(intent);
     }
 
-    private void setupMovieList(Cursor cursor) {
-
-        if (cursor == null || cursor.getCount() == 0) return;
-
-        final int SW_TABLET = 600;
-
-        if (mainBinding.rcMovieList.getAdapter() == null) {
-            Configuration config = getResources().getConfiguration();
-            int spanCount = 2;
-            if (config.smallestScreenWidthDp >= SW_TABLET || getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                spanCount = 3;
-            }
-
-            GridLayoutManager gridLayoutManager = new GridLayoutManager(this, spanCount);
-            mainBinding.rcMovieList.setHasFixedSize(true);
-            mainBinding.rcMovieList.setLayoutManager(gridLayoutManager);
-            mAdapter = new MovieListAdapter(cursor, this);
-            mainBinding.rcMovieList.setAdapter(mAdapter);
-        } else {
-            mAdapter.swipeData(cursor);
-            mAdapter.notifyDataSetChanged();
-        }
-    }
-
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         switch (id) {
             case ID_MOVIES_LOADER:
                 mainBinding.pgProgress.setVisibility(View.VISIBLE);
-                showNoResults(false);
-                mainBinding.rcMovieList.setAdapter(null);
                 return MovieProviderUtil.getAllMoviesAsyncTaskLoader(selectedSort, this);
             default:
                 throw new RuntimeException("Loader Not Implemented: " + id);
@@ -139,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         if (data != null && data.getCount() > 0) {
             showNoResults(false);
-            setupMovieList(data);
+            mAdapter.swipeData(data);
         } else {
             showNoResults(true);
         }

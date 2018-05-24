@@ -13,6 +13,13 @@ public class ReviewProviderUtil {
 
     public static AsyncTaskLoader<Cursor> getReviewsAsyncTaskLoaderByMovieId(final int movieId, final int movieApiId, final Context context) {
         return new AsyncTaskLoader<Cursor>(context) {
+
+            @Override
+            protected void onStartLoading() {
+                super.onStartLoading();
+                forceLoad();
+            }
+
             @Nullable
             @Override
             public Cursor loadInBackground() {
@@ -27,9 +34,7 @@ public class ReviewProviderUtil {
         };
     }
 
-    //if (NetworkUtils.isNetworkAvailable(this)) {
-
-    public static Cursor getAllReviews(int reviewId, Context context) {
+    private static Cursor getAllReviews(int reviewId, Context context) {
         Uri uri = createUriWithReviewId(reviewId);
         return context.getContentResolver()
                 .query(uri
@@ -37,6 +42,10 @@ public class ReviewProviderUtil {
                         ,null
                         , null
                         , ReviewContract.COLUMN_AUTHOR + " ASC");
+    }
+
+    public static int deleteAll(Context context) {
+        return context.getContentResolver().delete(ReviewContract.CONTENT_URI, null, null);
     }
 
     public static int delete(int reviewId, Context context) {

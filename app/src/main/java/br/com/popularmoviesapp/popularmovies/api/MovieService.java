@@ -20,6 +20,8 @@ import java.net.URL;
 
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieContract;
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieProviderUtil;
+import br.com.popularmoviesapp.popularmovies.data.review.ReviewProviderUtil;
+import br.com.popularmoviesapp.popularmovies.data.video.VideoProviderUtil;
 import br.com.popularmoviesapp.popularmovies.gui.MovieSortEnum;
 import br.com.popularmoviesapp.popularmovies.util.LogUtil;
 import br.com.popularmoviesapp.popularmovies.util.NetworkUtils;
@@ -38,8 +40,12 @@ public class MovieService extends BaseService {
     private static final String RELEASE_DATE_JSON = "release_date";
 
     public static void syncAllDataMovies(Context context) {
+
         MovieService.syncMoviesData(context);
         Cursor cursor = MovieProviderUtil.getAllMoviesCursor(MovieSortEnum.POPULAR, context);
+        VideoProviderUtil.deleteAll(context);
+        ReviewProviderUtil.deleteAll(context);
+
         if (cursor != null) {
             if (cursor.getCount() > 0) {
                 while (cursor.moveToNext()) {

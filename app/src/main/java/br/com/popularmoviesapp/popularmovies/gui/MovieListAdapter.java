@@ -27,8 +27,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
         void onMovieClick(int movieId, int movieApiId);
     }
 
-    MovieListAdapter(Cursor movies, MovieItemClickListener movieItemClickListener) {
-        this.mMoviesCursor = movies;
+    MovieListAdapter(MovieItemClickListener movieItemClickListener) {
         this.mMovieItemClickListener = movieItemClickListener;
     }
 
@@ -57,7 +56,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
     @Override
     public int getItemCount() {
-        return mMoviesCursor.getCount();
+        return mMoviesCursor != null ? mMoviesCursor.getCount() : 0;
     }
 
     public class MovieListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
