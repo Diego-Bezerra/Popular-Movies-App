@@ -12,7 +12,7 @@ import br.com.popularmoviesapp.popularmovies.util.NetworkUtils;
 
 public class VideoProviderUtil {
 
-    public static AsyncTaskLoader<Cursor> getVideosAsyncTaskLoaderByMovieId(final int movieId, final int movieApiId, final Context context) {
+    public static AsyncTaskLoader<Cursor> getVideosAsyncTaskLoaderByMovieId(final int movieId, final Context context) {
         return new AsyncTaskLoader<Cursor>(context) {
 
             @Override
@@ -27,7 +27,7 @@ public class VideoProviderUtil {
                 Cursor cursor = VideoProviderUtil.getAllVideosCursor(movieId, context);
                 if (cursor == null || cursor.getCount() == 0) {
                     if (NetworkUtils.isNetworkAvailable(context)) {
-                        VideoService.syncVideosData(movieId, movieApiId, context);
+                        VideoService.syncVideosData(movieId, context);
                         return VideoProviderUtil.getAllVideosCursor(movieId, context);
                     }
                 }

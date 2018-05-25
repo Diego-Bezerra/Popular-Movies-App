@@ -8,10 +8,7 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import java.io.ByteArrayOutputStream;
-
 import br.com.popularmoviesapp.popularmovies.R;
-import br.com.popularmoviesapp.popularmovies.data.movie.MovieProviderUtil;
 
 public class PosterTarget implements Target {
 
@@ -27,19 +24,19 @@ public class PosterTarget implements Target {
 
     @Override
     public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] byteArray = stream.toByteArray();
-
-                MovieProviderUtil.updateMoviePoster(movieId, byteArray, context);
-            }
-        }).start();
-        mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        mImageView.setImageBitmap(bitmap);
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+//                byte[] byteArray = stream.toByteArray();
+//
+//                MovieProviderUtil.updateMoviePoster(movieId, MovieContract.COLUMN_POSTER_THUMB, byteArray, context);
+//            }
+//        }).start();
+//        mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+//        mImageView.setImageBitmap(bitmap);
     }
 
     @Override

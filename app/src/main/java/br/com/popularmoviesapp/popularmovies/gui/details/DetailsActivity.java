@@ -2,8 +2,6 @@ package br.com.popularmoviesapp.popularmovies.gui.details;
 
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,7 +10,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -23,21 +20,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.com.popularmoviesapp.popularmovies.R;
+import br.com.popularmoviesapp.popularmovies.api.BaseService;
 import br.com.popularmoviesapp.popularmovies.api.MovieService;
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieContract;
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieProviderUtil;
 import br.com.popularmoviesapp.popularmovies.databinding.ActivityDetailsBinding;
+import br.com.popularmoviesapp.popularmovies.gui.BaseActivity;
 
-public class DetailsActivity extends AppCompatActivity implements
+public class DetailsActivity extends BaseActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final int LOADER_MOVIE_ID = 1;
     public static final String EXTRA_MOVIE_ID = "android.intent.extra.EXTRA_MOVIE_ID";
-    public static final String EXTRA_MOVIE_API_ID = "android.intent.extra.EXTRA_MOVIE_API_ID";
 
     private ActivityDetailsBinding mBinding;
     private int movieId;
-    private int movieApiId;
     private MenuItem favoriteMenuItem;
     private boolean isFavorite;
 
@@ -50,9 +47,8 @@ public class DetailsActivity extends AppCompatActivity implements
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
-        if (getIntent().hasExtra(EXTRA_MOVIE_ID) && getIntent().hasExtra(EXTRA_MOVIE_API_ID)) {
+        if (getIntent().hasExtra(EXTRA_MOVIE_ID)) {
             movieId = getIntent().getIntExtra(EXTRA_MOVIE_ID, 0);
-            movieApiId = getIntent().getIntExtra(EXTRA_MOVIE_API_ID, 0);
             if (movieId > 0) {
                 getSupportLoaderManager().initLoader(LOADER_MOVIE_ID, null, this);
             }
@@ -109,8 +105,8 @@ public class DetailsActivity extends AppCompatActivity implements
     private void setupViewPager() {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(SynopsisFragment.newInstance(movieId), getString(R.string.synopsis));
-        adapter.addFragment(VideosFragment.newInstance(movieId, movieApiId), getString(R.string.videos));
-        adapter.addFragment(ReviewsFragment.newInstance(movieId, movieApiId), getString(R.string.reviews));
+        adapter.addFragment(VideosFragment.newInstance(movieId), getString(R.string.videos));
+        adapter.addFragment(ReviewsFragment.newInstance(movieId), getString(R.string.reviews));
         mBinding.pager.setAdapter(adapter);
         mBinding.tabs.setupWithViewPager(mBinding.pager);
     }
@@ -127,14 +123,9 @@ public class DetailsActivity extends AppCompatActivity implements
         }
 
         mBinding.imgMovieThumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        byte[] img = data.getBlob(data.getColumnIndex(MovieContract.COLUMN_POSTER));
-        if (img == null) {
-            String posterPath = data.getString(data.getColumnIndex(MovieContract.COLUMN_POSTER_URL));
-            Picasso.get().load(MovieService.getImageThumbPath(posterPath)).into(mBinding.imgMovieThumb);
-        } else {
-            Bitmap bm = BitmapFactory.decodeByteArray(img, 0, img.length);
-            mBinding.imgMovieThumb.setImageBitmap(bm);
-        }
+
+        String posterPath = data.getString(data.getColumnIndex(MovieContract.COLUMN_POSTER_URL));
+        Picasso.get().load(MovieService.getImageThumbPath(posterPath, BaseService.IMAGE_SIZE_780_PATH)).into(mBinding.imgMovieThumb);
     }
 
     @NonNull

@@ -1,8 +1,6 @@
 package br.com.popularmoviesapp.popularmovies.gui;
 
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,6 +11,7 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 
 import br.com.popularmoviesapp.popularmovies.R;
+import br.com.popularmoviesapp.popularmovies.api.BaseService;
 import br.com.popularmoviesapp.popularmovies.api.MovieService;
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieContract;
 
@@ -24,7 +23,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
     private MovieItemClickListener mMovieItemClickListener;
 
     public interface MovieItemClickListener {
-        void onMovieClick(int movieId, int movieApiId);
+        void onMovieClick(int movieId);
     }
 
     MovieListAdapter(MovieItemClickListener movieItemClickListener) {
@@ -74,20 +73,13 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
         public void onClick(View v) {
             mMoviesCursor.moveToPosition(this.getLayoutPosition());
             int movieId = mMoviesCursor.getInt(mMoviesCursor.getColumnIndex(MovieContract._ID));
-            int movieApiId = mMoviesCursor.getInt(mMoviesCursor.getColumnIndex(MovieContract.COLUMN_API_ID));
-            mMovieItemClickListener.onMovieClick(movieId, movieApiId);
+            mMovieItemClickListener.onMovieClick(movieId);
         }
 
         void bind(Cursor cursor) {
-            byte[] img = cursor.getBlob(cursor.getColumnIndex(MovieContract.COLUMN_POSTER));
-            if (img == null) {
-                final String urlEnd = cursor.getString(cursor.getColumnIndex(MovieContract.COLUMN_POSTER_URL));
-                Picasso.get().load(MovieService.getImageThumbPath(urlEnd)).into(movieThumb);
-            } else {
-                Bitmap bm = BitmapFactory.decodeByteArray(img, 0, img.length);
-                movieThumb.setImageBitmap(bm);
-
-            }
+            final String urlEnd = cursor.getString(cursor.getColumnIndex(MovieContract.COLUMN_POSTER_URL));
+            Picasso. get().load(MovieService.getImageThumbPath(urlEnd,BaseService.IMAGE_SIZE_185_PATH))
+                    .into(movieThumb);
         }
     }
 }

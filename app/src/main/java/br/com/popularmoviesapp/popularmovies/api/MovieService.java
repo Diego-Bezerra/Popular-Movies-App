@@ -20,10 +20,7 @@ import java.net.URL;
 
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieContract;
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieProviderUtil;
-import br.com.popularmoviesapp.popularmovies.data.review.ReviewProviderUtil;
-import br.com.popularmoviesapp.popularmovies.data.video.VideoProviderUtil;
 import br.com.popularmoviesapp.popularmovies.gui.MovieSortEnum;
-import br.com.popularmoviesapp.popularmovies.util.LogUtil;
 import br.com.popularmoviesapp.popularmovies.util.NetworkUtils;
 
 public class MovieService extends BaseService {
@@ -43,21 +40,13 @@ public class MovieService extends BaseService {
 
         MovieService.syncMoviesData(context);
         Cursor cursor = MovieProviderUtil.getAllMoviesCursor(MovieSortEnum.POPULAR, context);
-        VideoProviderUtil.deleteAll(context);
-        ReviewProviderUtil.deleteAll(context);
 
         if (cursor != null) {
             if (cursor.getCount() > 0) {
                 while (cursor.moveToNext()) {
-                    int movieApiId = cursor.getInt(cursor.getColumnIndex(MovieContract.COLUMN_API_ID));
                     int movieId = cursor.getInt(cursor.getColumnIndex(MovieContract._ID));
-                    byte[] img = cursor.getBlob(cursor.getColumnIndex(MovieContract.COLUMN_POSTER));
-                    if (img == null) {
-                        String imgPath = cursor.getString(cursor.getColumnIndex(MovieContract.COLUMN_POSTER_URL));
-                        downloadPoster(imgPath, movieId, context);
-                    }
-                    VideoService.syncVideosData(movieId, movieApiId, context);
-                    ReviewService.syncReviewsData(movieId, movieApiId, context);
+                    VideoService.syncVideosData(movieId,  context);
+                    ReviewService.syncReviewsData(movieId, context);
                 }
             }
             cursor.close();
@@ -87,10 +76,7 @@ public class MovieService extends BaseService {
                     contentValues[i] = getContentValuesFromJson(json);
                 }
 
-                MovieProviderUtil.deleteAll(context);
-                LogUtil.logInfo("MOVIES: deleted all");
                 MovieProviderUtil.bulkInsert(contentValues, context);
-                LogUtil.logInfo("MOVIES: bulkInsert " + contentValues.length);
             }
 
         } catch (IOException e) {
@@ -107,8 +93,8 @@ public class MovieService extends BaseService {
         JSONObject jsonObj = new JSONObject(json);
 
         ContentValues values = new ContentValues();
+        values.put(MovieContract._ID, jsonObj.getString(ID_JSON));
         values.put(MovieContract.COLUMN_TITLE, jsonObj.getString(TITLE_JSON));
-        values.put(MovieContract.COLUMN_API_ID, jsonObj.getString(API_ID_JSON));
         values.put(MovieContract.COLUMN_SYNOPSIS, jsonObj.getString(OVERVIEW_JSON));
         values.put(MovieContract.COLUMN_AVERAGE, jsonObj.getDouble(VOTE_AVERAGE_JSON));
         values.put(MovieContract.COLUMN_FAVORITE, false);
@@ -119,11 +105,11 @@ public class MovieService extends BaseService {
         return values;
     }
 
-    public static void downloadPoster(String urlPath, int movieId, Context context) {
+    public static void downloadPoster(String urlPath, String column, int movieId, String sizePath, Context context) {
 
         InputStream in = null;
         try {
-            URL url = new URL(getImageThumbPath(urlPath));
+            URL url = new URL(getImageThumbPath(urlPath, sizePath));
             HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
             httpConn.connect();
             in = httpConn.getInputStream();
@@ -134,17 +120,18 @@ public class MovieService extends BaseService {
         }
 
         final Bitmap bitmap = BitmapFactory.decodeStream(in);
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byte[] byteArray = stream.toByteArray();
-
-        MovieProviderUtil.updateMoviePoster(movieId, byteArray, context);
+        if (bitmap != null) {
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            byte[] byteArray = stream.toByteArray();
+            MovieProviderUtil.updateMoviePoster(movieId, column, byteArray, context);
+        }
     }
 
-    public static String getImageThumbPath(String imageName) {
+    public static String getImageThumbPath(String imageName, String sizePath) {
         return Uri.parse(BASE_IMAGE_URL)
                 .buildUpon()
-                .appendPath(IMAGE_SIZE_185_PATH)
+                .appendPath(sizePath)
                 .appendEncodedPath(imageName)
                 .build().toString();
     }

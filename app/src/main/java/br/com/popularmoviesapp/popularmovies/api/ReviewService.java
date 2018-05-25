@@ -21,11 +21,11 @@ public class ReviewService extends BaseService {
     private static final String CONTENT_JSON = "content";
     private static final String URL_JSON = "url";
 
-    public static void syncReviewsData(int movieId, int movieApiId, Context context) {
+    public static void syncReviewsData(int movieId, Context context) {
 
         try {
 
-            URL url = getMoviesApiURLWithId(REVIEWS_PATH, movieApiId);
+            URL url = getMoviesApiURLWithId(REVIEWS_PATH, movieId);
 
             String jsonResponse = NetworkUtils.getResponseFromHttpUrl(url, context);
             if (jsonResponse == null) return;
@@ -57,6 +57,7 @@ public class ReviewService extends BaseService {
         JSONObject jsonObj = new JSONObject(json);
 
         ContentValues values = new ContentValues();
+        values.put(ReviewContract._ID, jsonObj.getString(ID_JSON));
         values.put(ReviewContract.COLUMN_AUTHOR, jsonObj.getString(AUTHOR_JSON));
         values.put(ReviewContract.COLUMN_CONTENT, jsonObj.getString(CONTENT_JSON));
         values.put(ReviewContract.COLUMN_URL, jsonObj.getString(URL_JSON));

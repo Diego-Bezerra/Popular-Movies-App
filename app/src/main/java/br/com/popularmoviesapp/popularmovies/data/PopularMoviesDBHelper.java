@@ -21,12 +21,10 @@ public class PopularMoviesDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
 
         final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MovieContract.TABLE_NAME + " ("
-                + MovieContract._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + MovieContract.COLUMN_API_ID + " INTEGER NOT NULL, "
+                + MovieContract._ID + " TEXT PRIMARY KEY, "
                 + MovieContract.COLUMN_TITLE + " TEXT NOT NULL, "
                 + MovieContract.COLUMN_RELEASE_DATE + " TEXT NOT NULL, "
                 + MovieContract.COLUMN_SYNOPSIS + " TEXT NOT NULL, "
-                + MovieContract.COLUMN_POSTER + " BLOB, "
                 + MovieContract.COLUMN_POSTER_URL + " TEXT NOT NULL, "
                 + MovieContract.COLUMN_POPULARITY +  " REAL NOT NULL, "
                 + MovieContract.COLUMN_AVERAGE +  " REAL NOT NULL, "
@@ -34,7 +32,7 @@ public class PopularMoviesDBHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_MOVIE_TABLE);
 
         final String SQL_CREATE_VIDEO_TABLE = "CREATE TABLE " + VideoContract.TABLE_NAME + " ("
-                + VideoContract._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + VideoContract._ID + " TEXT PRIMARY KEY, "
                 + VideoContract.COLUMN_NAME + " TEXT NOT NULL, "
                 + VideoContract.COLUMN_KEY + " TEXT NOT NULL, "
                 + VideoContract.COLUMN_TYPE + " TEXT NOT NULL, "
@@ -43,7 +41,7 @@ public class PopularMoviesDBHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_VIDEO_TABLE);
 
         final String SQL_CREATE_REVIEW_TABLE = "CREATE TABLE " + ReviewContract.TABLE_NAME + " ("
-                + ReviewContract._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + ReviewContract._ID + " TEXT PRIMARY KEY, "
                 + ReviewContract.COLUMN_AUTHOR + " TEXT NOT NULL, "
                 + ReviewContract.COLUMN_CONTENT + " TEXT NOT NULL, "
                 + ReviewContract.COLUMN_URL + " TEXT NOT NULL, "

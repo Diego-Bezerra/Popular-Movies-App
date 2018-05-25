@@ -2,6 +2,7 @@ package br.com.popularmoviesapp.popularmovies.data;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -10,8 +11,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import br.com.popularmoviesapp.popularmovies.data.movie.MovieContract;
+import br.com.popularmoviesapp.popularmovies.data.movie.MovieProviderUtil;
 import br.com.popularmoviesapp.popularmovies.data.review.ReviewContract;
+import br.com.popularmoviesapp.popularmovies.data.review.ReviewProviderUtil;
 import br.com.popularmoviesapp.popularmovies.data.video.VideoContract;
+import br.com.popularmoviesapp.popularmovies.data.video.VideoProviderUtil;
 
 public class PopularMoviesProvider extends ContentProvider {
 
@@ -21,6 +25,7 @@ public class PopularMoviesProvider extends ContentProvider {
     public static final int CODE_REVIEWS = 103;
     public static final int CODE_VIDEOS_WITH_MOVIE_ID = 104;
     public static final int CODE_REVIEW_WITH_MOVIE_ID = 105;
+    public static final int CODE_MOVIES_DELETE_ALL_DATA = 106;
 
     public static final UriMatcher sUriMatcher = buildUriMatcher();
     private PopularMoviesDBHelper mOpenHelper;
@@ -34,6 +39,7 @@ public class PopularMoviesProvider extends ContentProvider {
         matcher.addURI(authority, VideoContract.PATH_VIDEO + "/#", CODE_VIDEOS_WITH_MOVIE_ID);
         matcher.addURI(authority, ReviewContract.PATH_REVIEW + "/#", CODE_REVIEW_WITH_MOVIE_ID);
         matcher.addURI(authority, ReviewContract.PATH_REVIEW, CODE_REVIEWS);
+        matcher.addURI(authority, MovieContract.PATH_MOVIE + "/" + MovieContract.PATH_MOVIES_DELETE_ALL_DATA, CODE_MOVIES_DELETE_ALL_DATA);
 
         return matcher;
     }
@@ -168,13 +174,11 @@ public class PopularMoviesProvider extends ContentProvider {
                         , ReviewContract.COLUMN_MOVIE + "=?"
                         , new String[]{movieId + ""});
                 break;
+            case CODE_MOVIES_DELETE_ALL_DATA:
+                numRowsDeleted = deleteAllData();
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
-        }
-
-        /* If we actually deleted any rows, notify that a change has occurred to this URI */
-        if (numRowsDeleted != 0 && getContext() != null) {
-            getContext().getContentResolver().notifyChange(uri, null);
         }
 
         return numRowsDeleted;
@@ -196,10 +200,6 @@ public class PopularMoviesProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknow uri: " + uri);
         }
 
-        if (updatedRows > 0 && getContext() != null) {
-            getContext().getContentResolver().notifyChange(uri, null);
-        }
-
         return updatedRows;
     }
 
@@ -208,7 +208,7 @@ public class PopularMoviesProvider extends ContentProvider {
         int rowsInserted = 0;
         switch (sUriMatcher.match(uri)) {
             case CODE_MOVIES:
-                rowsInserted = bulkInsert(MovieContract.TABLE_NAME, values, uri);
+                rowsInserted = bulkInsertMovie(MovieContract.TABLE_NAME, values, uri);
                 break;
             case CODE_VIDEOS:
                 rowsInserted = bulkInsert(VideoContract.TABLE_NAME, values, uri);
@@ -220,33 +220,100 @@ public class PopularMoviesProvider extends ContentProvider {
                 return super.bulkInsert(uri, values);
         }
 
-        if (rowsInserted > 0 && getContext() != null) {
-            getContext().getContentResolver().notifyChange(uri, null);
-        }
-
         return rowsInserted;
     }
 
-    private int bulkInsert(String tableName, ContentValues[] values, Uri uri) {
+    private int bulkInsertMovie(String tableName, ContentValues[] values, Uri uri) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         db.beginTransaction();
-        int rowsInserted = 0;
+        int rowsInsertedOrUpdated = 0;
         try {
             for (ContentValues contentValues : values) {
-                long id = db.insert(tableName, null, contentValues);
-                if (id != -1) {
-                    rowsInserted++;
+
+                String apiId = contentValues.getAsString(MovieContract._ID);
+                Cursor cursor = db.query(tableName
+                        , new String[]{MovieContract._ID, MovieContract.COLUMN_FAVORITE}
+                        , MovieContract._ID + "=?"
+                        , new String[]{apiId + ""}
+                        , null
+                        , null
+                        , null);
+
+                if (cursor != null && cursor.getCount() > 0) {
+                    cursor.moveToFirst();
+                    int fav = cursor.getInt(cursor.getColumnIndex(MovieContract.COLUMN_FAVORITE));
+                    contentValues.put(MovieContract.COLUMN_FAVORITE, fav);
+                    int rows = db.update(tableName, contentValues, MovieContract._ID + "=?", new String[]{apiId});
+                    rowsInsertedOrUpdated += rows;
+                } else {
+                    long id = db.insert(tableName, null, contentValues);
+                    if (id != -1) {
+                        rowsInsertedOrUpdated++;
+                    }
                 }
+                if (cursor != null) cursor.close();
             }
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }
 
-        if (rowsInserted > 0 && getContext() != null) {
-            getContext().getContentResolver().notifyChange(uri, null);
+        return rowsInsertedOrUpdated;
+    }
+
+    private int bulkInsert(String tableName, ContentValues[] values, Uri uri) {
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        db.beginTransaction();
+        int rowsInsertedOrUpdated = 0;
+        try {
+            for (ContentValues contentValues : values) {
+
+                String apiId = contentValues.getAsString(MovieContract._ID);
+                Cursor cursor = db.query(tableName
+                        , new String[]{BaseContract._ID}
+                        , MovieContract._ID + "=?"
+                        , new String[]{apiId + ""}
+                        , null
+                        , null
+                        , null);
+
+                if (cursor != null && cursor.getCount() > 0) {
+                    int rows = db.update(tableName, contentValues, MovieContract._ID + "=?", new String[]{apiId});
+                    rowsInsertedOrUpdated += rows;
+                } else {
+                    long id = db.insert(tableName, null, contentValues);
+                    if (id != -1) {
+                        rowsInsertedOrUpdated++;
+                    }
+                }
+                if (cursor != null) cursor.close();
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
 
-        return rowsInserted;
+        return rowsInsertedOrUpdated;
+    }
+
+    public int deleteAllData() {
+        Context context = getContext();
+        int deletedRows = 0;
+        if (context != null) {
+            SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+            db.beginTransaction();
+            try {
+
+                deletedRows = MovieProviderUtil.deleteAll(context);
+                deletedRows += VideoProviderUtil.deleteAll(context);
+                deletedRows += ReviewProviderUtil.deleteAll(context);
+
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+        }
+
+        return deletedRows;
     }
 }

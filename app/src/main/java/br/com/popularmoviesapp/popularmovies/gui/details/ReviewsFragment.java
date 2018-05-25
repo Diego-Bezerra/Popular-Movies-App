@@ -20,19 +20,16 @@ import br.com.popularmoviesapp.popularmovies.databinding.FragmentReviewsBinding;
 public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String EXTRA_MOVIE_ID = "android.intent.extra.EXTRA_MOVIE_ID";
-    public static final String EXTRA_MOVIE_API_ID = "android.intent.extra.EXTRA_MOVIE_API_ID";
     public static final int LOADER_REVIEW_DETAIL_ID = 3;
 
     private int movieId;
-    private int movieApiId;
     private ReviewAdapter adapter;
     private FragmentReviewsBinding mBinding;
 
-    public static ReviewsFragment newInstance(int movieId, int movieApiId) {
+    public static ReviewsFragment newInstance(int movieId) {
         ReviewsFragment fragment = new ReviewsFragment();
         Bundle bundle = new Bundle();
         bundle.putInt(EXTRA_MOVIE_ID, movieId);
-        bundle.putInt(EXTRA_MOVIE_API_ID, movieApiId);
         fragment.setArguments(bundle);
 
         return fragment;
@@ -43,9 +40,8 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
         super.onCreate(savedInstanceState);
 
         Bundle bundle = getArguments();
-        if (getActivity() != null && bundle != null && bundle.containsKey(EXTRA_MOVIE_ID)) {
+        if (getActivity() != null && bundle != null) {
             movieId = bundle.getInt(EXTRA_MOVIE_ID);
-            movieApiId = bundle.getInt(EXTRA_MOVIE_API_ID);
         }
     }
 
@@ -83,7 +79,7 @@ public class ReviewsFragment extends Fragment implements LoaderManager.LoaderCal
         switch (id) {
             case LOADER_REVIEW_DETAIL_ID:
                 mBinding.pgProgress.setVisibility(View.VISIBLE);
-                return ReviewProviderUtil.getReviewsAsyncTaskLoaderByMovieId(movieId, movieApiId, getActivity());
+                return ReviewProviderUtil.getReviewsAsyncTaskLoaderByMovieId(movieId, getActivity());
             default:
                 throw new RuntimeException("Loader Not Implemented: " + id);
         }

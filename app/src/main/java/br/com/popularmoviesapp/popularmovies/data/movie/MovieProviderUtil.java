@@ -63,9 +63,19 @@ public class MovieProviderUtil {
                         , null);
     }
 
-    public static void bulkInsert(ContentValues[] contentValues, Context context) {
-        context.getContentResolver()
+    public static int bulkInsert(ContentValues[] contentValues, Context context) {
+        return bulkInsert(contentValues, false, context);
+    }
+
+    public static int bulkInsert(ContentValues[] contentValues, boolean notify, Context context) {
+        int rowsInserted = context.getContentResolver()
                 .bulkInsert(MovieContract.CONTENT_URI, contentValues);
+
+        if (rowsInserted > 0 && notify) {
+            context.getContentResolver().notifyChange(MovieContract.CONTENT_URI, null);
+        }
+
+        return rowsInserted;
     }
 
     private static String getSortColumn(MovieSortEnum sortEnum) {
@@ -87,10 +97,10 @@ public class MovieProviderUtil {
                 , MovieContract.COLUMN_POPULARITY + " DESC");
     }
 
-    public static int updateMoviePoster(int movieId, byte[] img, Context context) {
+    public static int updateMoviePoster(int movieId, String column, byte[] img, Context context) {
         Uri uri = MovieContract.CONTENT_URI.buildUpon().appendPath(movieId + "").build();
         ContentValues values = new ContentValues();
-        values.put(MovieContract.COLUMN_POSTER, img);
+        values.put(column, img);
         return context.getContentResolver()
                 .update(uri
                         , values
@@ -102,10 +112,23 @@ public class MovieProviderUtil {
         Uri uri = MovieContract.CONTENT_URI.buildUpon().appendPath(movieId + "").build();
         ContentValues values = new ContentValues();
         values.put(MovieContract.COLUMN_FAVORITE, isFavorite);
-        return context.getContentResolver()
+        int updatedRows = context.getContentResolver()
                 .update(uri
                         , values
                         , null
                         , null);
+
+        if (updatedRows > 0) {
+            context.getContentResolver().notifyChange(uri, null);
+        }
+
+        return updatedRows;
+    }
+
+    public static void deleteAllData(Context context) {
+        Uri uri = MovieContract.CONTENT_URI.buildUpon()
+                .appendPath(MovieContract.PATH_MOVIES_DELETE_ALL_DATA).build();
+        context.getContentResolver()
+                .delete(uri, null, null);
     }
 }

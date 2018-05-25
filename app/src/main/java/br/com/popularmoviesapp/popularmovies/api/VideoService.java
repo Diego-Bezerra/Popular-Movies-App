@@ -22,13 +22,13 @@ public class VideoService extends BaseService {
     private static final String NAME_JSON = "name";
     private static final String TYPE_JSON = "type";
 
-    public static void syncVideosData(int movieId, int movieApiId, Context context) {
+    public static void syncVideosData(int movieId, Context context) {
 
         try {
 
             LogUtil.logInfo("syncVideosData");
 
-            URL url = getMoviesApiURLWithId(VIDEOS_PATH, movieApiId);
+            URL url = getMoviesApiURLWithId(VIDEOS_PATH, movieId);
 
             String jsonResponse = NetworkUtils.getResponseFromHttpUrl(url, context);
             JSONObject jsonObject = new JSONObject(jsonResponse);
@@ -59,6 +59,7 @@ public class VideoService extends BaseService {
         JSONObject jsonObj = new JSONObject(json);
 
         ContentValues values = new ContentValues();
+        values.put(VideoContract._ID, jsonObj.getString(ID_JSON));
         values.put(VideoContract.COLUMN_KEY, jsonObj.getString(KEY_JSON));
         values.put(VideoContract.COLUMN_NAME, jsonObj.getString(NAME_JSON));
         values.put(VideoContract.COLUMN_TYPE, jsonObj.getString(TYPE_JSON));

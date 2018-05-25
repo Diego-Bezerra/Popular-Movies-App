@@ -1,9 +1,7 @@
 package br.com.popularmoviesapp.popularmovies.util;
 
-import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,20 +9,23 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
 
-import br.com.popularmoviesapp.popularmovies.R;
-
 public class NetworkUtils {
+
+    private static NetworkListener networkListener;
+
+    public interface NetworkListener {
+        void noInternetConnection();
+    }
+
+    public static void setNetworkListener(NetworkListener networkListener) {
+        NetworkUtils.networkListener = networkListener;
+    }
 
     public static String getResponseFromHttpUrl(URL url, final Context context) throws IOException {
 
         if (!NetworkUtils.isNetworkAvailable(context)) {
-            if (context instanceof Activity) {
-                PopularMoviesUtil.runOnMainThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(context, R.string.no_internet_connection, Toast.LENGTH_LONG).show();
-                    }
-                }, context);
+            if (networkListener != null) {
+                networkListener.noInternetConnection();
             }
             return null;
         }

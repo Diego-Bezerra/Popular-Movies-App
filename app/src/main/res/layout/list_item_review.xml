@@ -26,10 +26,8 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginBottom="2dp"
                 android:layout_weight="1"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-                android:textSize="16sp"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Headline"
                 tools:text="Ricardo Barroso" />
-
             <android.support.v7.widget.AppCompatImageButton
                 android:id="@+id/btn_share"
                 android:layout_width="wrap_content"
@@ -45,8 +43,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Headline"
-            android:textSize="12sp"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:textSize="@dimen/list_item_text_size"
             tools:text="I love Jennifer Lawrence, she's just amazing. It's not her best apparition but she's the main character of the plot, so you can appreciate her like in no other of her movies.
  Twisted and complex, the main plot is defined by itself during the development of the movie.
  By synopsis, Dominika Egorova (Jennifer Lawrence) it's a professional ballet ballerina that tragically forced to change her career path by an accident.

@@ -41,7 +41,7 @@
                     android:layout_marginBottom="@dimen/default_half_padding"
                     android:layout_marginTop="@dimen/default_padding"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1"
-                    android:textSize="15sp" />
+                    android:textSize="@dimen/list_item_text_size" />
 
             </LinearLayout>
 

@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,7 +20,7 @@ import br.com.popularmoviesapp.popularmovies.databinding.ActivityMainBinding;
 import br.com.popularmoviesapp.popularmovies.gui.details.DetailsActivity;
 import br.com.popularmoviesapp.popularmovies.sync.PopularMoviesSyncUtils;
 
-public class MainActivity extends AppCompatActivity implements MovieListAdapter.MovieItemClickListener,
+public class MainActivity extends BaseActivity implements MovieListAdapter.MovieItemClickListener,
         LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String SORT_STATE = "sort_state";
@@ -115,10 +114,9 @@ public class MainActivity extends AppCompatActivity implements MovieListAdapter.
     }
 
     @Override
-    public void onMovieClick(int movieId, int movieApiId) {
+    public void onMovieClick(int movieId) {
         Intent intent = new Intent(this, DetailsActivity.class);
         intent.putExtra(DetailsActivity.EXTRA_MOVIE_ID, movieId);
-        intent.putExtra(DetailsActivity.EXTRA_MOVIE_API_ID, movieApiId);
         startActivity(intent);
     }
 

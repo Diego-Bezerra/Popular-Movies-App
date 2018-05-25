@@ -20,19 +20,16 @@ import br.com.popularmoviesapp.popularmovies.databinding.FragmentVideosBinding;
 public class VideosFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String EXTRA_MOVIE_ID = "android.intent.extra.EXTRA_MOVIE_ID";
-    public static final String EXTRA_MOVIE_API_ID = "android.intent.extra.EXTRA_MOVIE_API_ID";
     public static final int LOADER_VIDEO_DETAIL_ID = 3;
 
     private int movieId;
-    private int movieApiId;
     private VideoAdapter adapter;
     private FragmentVideosBinding mBinding;
 
-    public static VideosFragment newInstance(int movieId, int movieApiId) {
+    public static VideosFragment newInstance(int movieId) {
         VideosFragment fragment = new VideosFragment();
         Bundle bundle = new Bundle();
         bundle.putInt(EXTRA_MOVIE_ID, movieId);
-        bundle.putInt(EXTRA_MOVIE_API_ID, movieApiId);
         fragment.setArguments(bundle);
 
         return fragment;
@@ -42,9 +39,8 @@ public class VideosFragment extends Fragment implements LoaderManager.LoaderCall
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle bundle = getArguments();
-        if (getActivity() != null && bundle != null && bundle.containsKey(EXTRA_MOVIE_API_ID)) {
+        if (getActivity() != null && bundle != null) {
             movieId = bundle.getInt(EXTRA_MOVIE_ID);
-            movieApiId = bundle.getInt(EXTRA_MOVIE_API_ID);
         }
     }
 
@@ -71,7 +67,7 @@ public class VideosFragment extends Fragment implements LoaderManager.LoaderCall
         switch (id) {
             case LOADER_VIDEO_DETAIL_ID:
                 mBinding.pgProgress.setVisibility(View.VISIBLE);
-                return VideoProviderUtil.getVideosAsyncTaskLoaderByMovieId(movieId, movieApiId, getActivity());
+                return VideoProviderUtil.getVideosAsyncTaskLoaderByMovieId(movieId, getActivity());
             default:
                 throw new RuntimeException("Loader Not Implemented: " + id);
         }

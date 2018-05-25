@@ -11,7 +11,7 @@ import br.com.popularmoviesapp.popularmovies.api.ReviewService;
 
 public class ReviewProviderUtil {
 
-    public static AsyncTaskLoader<Cursor> getReviewsAsyncTaskLoaderByMovieId(final int movieId, final int movieApiId, final Context context) {
+    public static AsyncTaskLoader<Cursor> getReviewsAsyncTaskLoaderByMovieId(final int movieId, final Context context) {
         return new AsyncTaskLoader<Cursor>(context) {
 
             @Override
@@ -25,7 +25,7 @@ public class ReviewProviderUtil {
             public Cursor loadInBackground() {
                 Cursor cursor = ReviewProviderUtil.getAllReviews(movieId, context);
                 if (cursor == null || cursor.getCount() == 0) {
-                    ReviewService.syncReviewsData(movieId, movieApiId, context);
+                    ReviewService.syncReviewsData(movieId, context);
                     return ReviewProviderUtil.getAllReviews(movieId, context);
                 }
 
