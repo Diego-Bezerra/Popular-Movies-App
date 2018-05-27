@@ -11,9 +11,14 @@ public class ToastUtil {
         showToast(context.getString(messageResource), context);
     }
 
-    public static void showToast(String message, Context context) {
-        if (toast != null) toast.cancel();
-        toast = Toast.makeText(context, message, Toast.LENGTH_LONG);
-        toast.show();
+    public static void showToast(final String message, final Context context) {
+        PopularMoviesUtil.runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                if (toast != null) toast.cancel();
+                toast = Toast.makeText(context, message, Toast.LENGTH_LONG);
+                toast.show();
+            }
+        }, context);
     }
 }
